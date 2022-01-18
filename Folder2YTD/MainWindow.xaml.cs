@@ -14,7 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using Ookii.Dialogs.Wpf;
-
+using System.Drawing;
+using System.IO;
+using Path = System.IO.Path;
 
 namespace Folder2YTD
 {
@@ -39,6 +41,50 @@ namespace Folder2YTD
             
         }
 
+        public bool IsTransparent(Bitmap image)
+        {
+            bool IsTransp = false;
+
+            if (TransparencyTypes.SelectedIndex == 1)
+            {
+                //if (image.ToString().Contains(".tga"))
+                //{
+
+                //}
+                if ((image.Flags & 0x2) != 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (TransparencyTypes.SelectedIndex == 2)
+            {
+                for (int y = 0; y < image.Height; ++y)
+                {
+                    for (int x = 0; x < image.Width; ++x)
+                    {
+                        if (image.GetPixel(x, y).A < 255)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            if (TransparencyTypes.SelectedIndex == 0)
+            {
+                return false;
+            }
+
+
+            return IsTransp;
+
+        }
+
         private void btnSelectFolders_Click(object sender, RoutedEventArgs e)
         {
            
@@ -50,6 +96,46 @@ namespace Folder2YTD
                 lbFolderView.ItemsSource = dialog.SelectedPaths;
             }
             
+        }
+
+        private void btnConvert_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async Task YTDfromFolders(List<string> AllFolders)
+        {
+            string DXTFormat = string.Empty;
+            int MipMapCount = 0;
+
+            await Task.Run(() =>
+            {
+                foreach (var folder in AllFolders)
+                {
+                    var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".dds"));
+
+                    int ImgCount = ImgFiles.Count();
+
+                    if (ImgCount <= 0)
+                    {
+                        LbProgressLog.AppendText("\n0 compatible textures, skipping...");
+                    }
+                    else
+                    {
+                        LbProgressLog.AppendText("\n" + ImgCount + " compatible textures.");
+
+                    }
+
+                    foreach (var imgfile in ImgFiles)
+                    {
+                        if (ImgFiles.Any())
+                        {
+                            string ImgFileName = Path.GetFileName(imgfile);
+                            string ImgFileNameWithoutExt = Path.GetFileNameWithoutExtension(imgfile);
+                        }
+                    }
+                }
+            });
         }
     }
 }

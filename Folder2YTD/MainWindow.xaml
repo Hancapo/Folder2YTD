@@ -33,13 +33,13 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
             <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="TransparencyTypes" Margin="20" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <Button Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Convert" Style="{StaticResource MaterialDesignFlatMidBgButton}"/>
-            <Button Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignFlatDarkBgButton}"/>
+            <Button x:Name="btnConvert" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Convert" Style="{StaticResource MaterialDesignFlatMidBgButton}" Click="btnConvert_Click"/>
+            <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignFlatDarkBgButton}"/>
         </StackPanel>
         <StackPanel  Grid.Row="2" VerticalAlignment="Center">
-            <ListBox x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" Height="190" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <RichTextBox x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" IsReadOnly="True" Height="200">
 
-            </ListBox>
+            </RichTextBox>
         </StackPanel>
 
     </Grid>
