@@ -41,9 +41,9 @@
             <ComboBox materialDesign:HintAssist.Hint="Quality" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="QualitySettings" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="TransparencyTypes" Margin="20" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignDarkForeground}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <CheckBox x:Name="GenerateMipMaps" Content="Generate MipMaps?" Foreground="#FFFAFAFA" Height="30" Margin="20,5,0,0"/>
-            <Button x:Name="btnConvert" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Convert" Style="{StaticResource MaterialDesignFlatMidBgButton}" Click="btnConvert_Click"/>
-            <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Click="btnClear_Click"/>
+            <CheckBox x:Name="GenerateMipMaps" Content="Generate MipMaps?" Foreground="#FFFAFAFA" Height="30" Margin="20,5,20,0"/>
+            <Button x:Name="btnConvert" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Convert" Style="{StaticResource MaterialDesignOutlinedSecondaryButton}" Click="btnConvert_Click"/>
+            <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignOutlinedDarkButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Center">
             <TextBox VerticalScrollBarVisibility="Auto" x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" IsReadOnly="True" Height="200" Foreground="#FF4BFF45" Cursor="Arrow" TextChanged="LbProgressLog_TextChanged"/>
@@ -53,7 +53,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label  Content="Alpha 1" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
+                <Label  Content="0.1.2" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
                 <Label  Content="Supported formats: PNG, DDS, TGA, JPG, BMP" HorizontalAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 
