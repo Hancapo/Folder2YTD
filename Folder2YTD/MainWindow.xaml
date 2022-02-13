@@ -13,33 +13,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Folder2YTD"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1000" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None">
+        Title="Folders2YTD by MrVicho13" Height="800" Width="1000" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None">
     <Grid Background="{StaticResource MaterialDesignDarkBackground}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="0.2*"/>
             <RowDefinition/>
             <RowDefinition Height="0.3*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="btnSelectFolders" Style="{StaticResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
+        <StackPanel x:Name="spToolbar" Background="#FF1F1F1F" MouseDown="spToolbar_MouseDown">
+            <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
+                <Button x:Name="btnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click"/>
+                <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}"/>
+                <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
 
             </StackPanel>
-            <ListBox Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" x:Name="lbFolderView" Margin="20" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=5}">
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="1">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                <Button Margin="20" x:Name="btnSelectFolders" Style="{StaticResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
+                <ListBox Width="960" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged"/>
+            </StackPanel>
 
-            </ListBox>
 
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
-            <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="TransparencyTypes" Margin="20" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+            <ComboBox materialDesign:HintAssist.Hint="Quality" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="QualitySettings" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{StaticResource MaterialDesignDarkForeground}" x:Name="TransparencyTypes" Margin="20" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignDarkForeground}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <CheckBox x:Name="GenerateMipMaps" Content="Generate MipMaps?" Foreground="#FFFAFAFA" Height="30" Margin="20,5,0,0"/>
             <Button x:Name="btnConvert" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Convert" Style="{StaticResource MaterialDesignFlatMidBgButton}" Click="btnConvert_Click"/>
-            <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignFlatDarkBgButton}"/>
+            <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Click="btnClear_Click"/>
         </StackPanel>
-        <StackPanel  Grid.Row="2" VerticalAlignment="Center">
-            <RichTextBox x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" IsReadOnly="True" Height="200">
+        <StackPanel  Grid.Row="3" VerticalAlignment="Center">
+            <TextBox VerticalScrollBarVisibility="Auto" x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" IsReadOnly="True" Height="200" Foreground="#FF4BFF45" Cursor="Arrow" TextChanged="LbProgressLog_TextChanged"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label  Content="Alpha 1" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
+                <Label  Content="Supported formats: PNG, DDS, TGA, JPG, BMP" HorizontalAlignment="Center" Margin="15" Grid.Column="1"/>
+                <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 
-            </RichTextBox>
+
+            </Grid>
+
         </StackPanel>
 
     </Grid>
