@@ -55,7 +55,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Content="0.2.7" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
+                <Label Content="0.2.8" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
                 <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF, WEBP" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 

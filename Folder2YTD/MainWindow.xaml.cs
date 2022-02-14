@@ -22,6 +22,7 @@ using Microsoft.Toolkit.HighPerformance;
 using SixLabors.ImageSharp.Processing;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
+using System.Diagnostics;
 
 namespace Folder2YTD
 {
@@ -33,7 +34,7 @@ namespace Folder2YTD
         
         private List<string> FoldersList = new();
         private readonly PaletteHelper _paletteHelper = new PaletteHelper();
-
+        private List<string> ParentFolders = new();
         public MainWindow()
         {
             InitializeComponent();
@@ -189,6 +190,10 @@ namespace Folder2YTD
                 for (int i = 0; i < AllFolders.Count; i++)
                 {
 
+                    ParentFolders = AllFolders.Select(x => Directory.GetParent(x).ToString()).ToList();
+
+                    ParentFolders = ParentFolders.Distinct().ToList();
+
                     List<string> ConvertedDDS = new();
                     List<string> AlreadyDDSs = new();
 
@@ -324,6 +329,11 @@ namespace Folder2YTD
                 }
 
                 MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                foreach (var item in ParentFolders)
+                {
+                    Process.Start("explorer.exe", item);
+
+                }
             });
         }
 
