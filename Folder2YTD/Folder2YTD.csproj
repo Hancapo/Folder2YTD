@@ -9,6 +9,7 @@
     <ApplicationIcon>foldericon.ico</ApplicationIcon>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <DebugType>full</DebugType>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

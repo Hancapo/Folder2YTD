@@ -46,14 +46,16 @@
             <Button x:Name="btnClear" Margin="20" Foreground="{StaticResource MaterialDesignDarkForeground}" Content="Clear" Style="{StaticResource MaterialDesignOutlinedDarkButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Center">
-            <TextBox VerticalScrollBarVisibility="Auto" x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" IsReadOnly="True" Height="200" Foreground="#FF4BFF45" Cursor="Arrow" TextChanged="LbProgressLog_TextChanged"/>
+            <ScrollViewer>
+                <TextBlock TextWrapping="Wrap" x:Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" Height="200" Foreground="#FF4BFF45" Cursor="Arrow"/>
+            </ScrollViewer>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label  Content="0.1.2" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
+                <Label  Content="0.1.3" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
                 <Label  Content="Supported formats: PNG, DDS, TGA, JPG, BMP" HorizontalAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 
