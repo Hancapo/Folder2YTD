@@ -24,6 +24,7 @@ using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 using System.Diagnostics;
 using AutoUpdaterDotNET;
+using System.Reflection;
 
 namespace Folder2YTD
 {
@@ -40,6 +41,8 @@ namespace Folder2YTD
         {
 
             InitializeComponent();
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            AppVersionLabel.Content = String.Format("v{0}", version);
             TransparencyTypes.ItemsSource = new List<string>() { "Off", "By pixels"};
             FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)" };
             QualitySettings.ItemsSource = new List<string>() { "Fast", "Balanced", "Best Quality" };
