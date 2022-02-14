@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <item>
-  <version>0.2.9.0</version>
-  <url>https://github.com/Hancapo/Folder2YTD/releases/latest/download/Folders2YTD.zip</url>
-  <mandatory>true</mandatory>
+	<version>0.3.0.0</version>
+	<url>https://github.com/Hancapo/Folder2YTD/releases/latest/download/Folders2YTD.zip</url>
+	<changelog>https://github.com/Hancapo/Folder2YTD/releases</changelog>
+	<mandatory>true</mandatory>
 </item>
