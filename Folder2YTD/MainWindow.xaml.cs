@@ -197,10 +197,8 @@ namespace Folder2YTD
                 for (int i = 0; i < AllFolders.Count; i++)
                 {
 
-                    ParentFolders = AllFolders.Select(x => Directory.GetParent(x).ToString()).ToList();
-
-                    ParentFolders = ParentFolders.Distinct().ToList();
-
+                    bool ThereIsAnyConvertedDDSFile = false;
+                    ParentFolders = AllFolders.Select(x => Directory.GetParent(x).ToString()).ToList().Distinct().ToList();
                     List<string> ConvertedDDS = new();
                     List<string> AlreadyDDSs = new();
 
@@ -211,7 +209,7 @@ namespace Folder2YTD
                     lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
 
                     
-                    var ImgFiles = (List<string>)Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".dds") || x.EndsWith(".jpg") || x.EndsWith(".tga") || x.EndsWith(".bmp") || x.EndsWith(".webp") || x.EndsWith(".tiff") || x.EndsWith(".jpeg")).ToList();
+                    var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".dds") || x.EndsWith(".jpg") || x.EndsWith(".tga") || x.EndsWith(".bmp") || x.EndsWith(".webp") || x.EndsWith(".tiff") || x.EndsWith(".jpeg")).ToList();
 
                     int ImgCount = ImgFiles.Count();
 
@@ -241,17 +239,6 @@ namespace Folder2YTD
                             string ImgFileName = Path.GetFileName(imgfile);
                             string ImgFileNameWithoutExt = Path.GetFileNameWithoutExtension(imgfile);
 
-
-
-                            //if (ImgFileName.Contains(" "))
-                            //{
-                            //    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.AppendText($"\nImage file {ImgFileName} contains one or more blank characters, please rename it manually, skipping..."); });
-                            //    continue;
-                            //}
-
-
-
-
                             if (ImgFileName.EndsWith(".png") || ImgFileName.EndsWith(".tga") || ImgFileName.EndsWith(".jpg") || ImgFileName.EndsWith(".bmp") || ImgFileName.EndsWith(".webp") || ImgFileName.EndsWith(".tiff") || ImgFileName.EndsWith(".tif") || ImgFileName.EndsWith(".tif") || ImgFileName.EndsWith(".jpeg"))
                             {
 
@@ -269,9 +256,21 @@ namespace Folder2YTD
 
                                 File.Copy(imgfile, MovedImageName, true);
 
-                                ConvertImageToDDS(MovedImageName);
-
                                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to DDS..."); });
+
+
+                                if (ConvertImageToDDS(MovedImageName))
+                                {
+                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} was sucessful..."); });
+
+                                }
+                                else
+                                {
+                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} has failed, skipping, this SHOULDN'T happen..."); });
+
+                                }
+
+
 
 
                                 File.Delete(MovedImageName);
@@ -293,15 +292,32 @@ namespace Folder2YTD
                         }
                     }
 
-                    try
+
+                    List<string> CheckConvertedDDS = new();
+
+                    if (Directory.Exists(folder + "/converted_dds/"))
                     {
-                        ConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
+                        CheckConvertedDDS = Directory.EnumerateFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
 
                     }
-                    catch
+                    else
                     {
+                        CheckConvertedDDS = new List<string>();
+                    }
 
+
+
+                    ThereIsAnyConvertedDDSFile = CheckConvertedDDS.Any();
+
+
+                    if (!ThereIsAnyConvertedDDSFile)
+                    {
                         ConvertedDDS = new List<string>();
+
+                    }
+                    else
+                    {
+                        ConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
                     }
 
                     if (ConvertedDDS.Count != 0 || ConvertedDDS != null)
@@ -320,15 +336,14 @@ namespace Folder2YTD
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nCreating {Path.GetFileName(folder)}.ytd file..."); });
 
 
+
+
+
                     CreateYTDfilesFromFolders(AllDDSmerged, folder);
 
-                    try
+                    if (ThereIsAnyConvertedDDSFile)
                     {
                         Directory.Delete(folder + "/converted_dds", true);
-
-                    }
-                    catch
-                    {
 
                     }
 
@@ -336,9 +351,9 @@ namespace Folder2YTD
                 }
 
                 MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                foreach (var item in ParentFolders)
+                foreach (var parentFolder in ParentFolders)
                 {
-                    Process.Start("explorer.exe", item);
+                    Process.Start("explorer.exe", parentFolder);
 
                 }
             });
@@ -350,8 +365,9 @@ namespace Folder2YTD
             lbFolderView.ItemsSource = null;
             LbProgressLog.Text = String.Empty;
         }
-        private void ConvertImageToDDS(string filename)
+        private bool ConvertImageToDDS(string filename)
         {
+
 
             bool isMipMapChecked = false;
 
@@ -439,17 +455,11 @@ namespace Folder2YTD
 
 
                 File.WriteAllBytes(Path.GetDirectoryName(filename) + "/" + GetImageName + ".dds", ddsbytes);
-                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} was sucessful..."); });
+                return true;
             }
             catch
             {
-
-
-
-                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed, skipping, this SHOULDN'T happen...");});
-                
-
-
+                return false;
             }
 
 
@@ -514,7 +524,25 @@ namespace Folder2YTD
 
         private void lbFolderView_Drop(object sender, DragEventArgs e)
         {
-            FoldersList = FoldersList.Concat(((string[])e.Data.GetData(DataFormats.FileDrop, true)).ToList()).Distinct().ToList();
+
+
+            List<string> Folderpaths = ((string[])e.Data.GetData(DataFormats.FileDrop, true)).ToList();
+
+            List<string> ValidFolders = new();
+
+            foreach (string Folderpath in Folderpaths)
+            {
+
+                if (Directory.Exists(Folderpath))
+                {
+                    ValidFolders.Add(Folderpath);
+                }
+
+
+            }
+
+
+            FoldersList = FoldersList.Concat(ValidFolders.ToList()).Distinct().ToList();
             lbFolderView.ItemsSource = FoldersList;
 
         }
