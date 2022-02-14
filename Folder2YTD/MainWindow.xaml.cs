@@ -38,6 +38,8 @@ namespace Folder2YTD
         private List<string> ParentFolders = new();
         public MainWindow()
         {
+            AutoUpdater.Start("https://raw.githubusercontent.com/Hancapo/Folder2YTD/master/Folder2YTD/updateinfo.xml");
+
             InitializeComponent();
             TransparencyTypes.ItemsSource = new List<string>() { "Off", "By pixels"};
             FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)" };
@@ -46,6 +48,7 @@ namespace Folder2YTD
             TransparencyTypes.SelectedIndex = 1;
             QualitySettings.SelectedIndex = 1;
             GenerateMipMaps.IsChecked = true;
+
 
         }
 
