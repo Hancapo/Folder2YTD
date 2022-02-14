@@ -236,7 +236,7 @@ namespace Folder2YTD
 
 
 
-                            if (ImgFileName.EndsWith(".png") || ImgFileName.EndsWith(".tga") || ImgFileName.EndsWith(".jpg") || ImgFileName.EndsWith(".bmp") || ImgFileName.EndsWith(".webp") || ImgFileName.EndsWith(".tiff") || ImgFileName.EndsWith(".jpeg"))
+                            if (ImgFileName.EndsWith(".png") || ImgFileName.EndsWith(".tga") || ImgFileName.EndsWith(".jpg") || ImgFileName.EndsWith(".bmp") || ImgFileName.EndsWith(".webp") || ImgFileName.EndsWith(".tiff") || ImgFileName.EndsWith(".tif") || ImgFileName.EndsWith(".tif") || ImgFileName.EndsWith(".jpeg"))
                             {
 
                                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); }) ;
@@ -277,20 +277,44 @@ namespace Folder2YTD
                         }
                     }
 
+                    try
+                    {
+                        ConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
 
-                    ConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
+                    }
+                    catch
+                    {
 
+                        ConvertedDDS = new List<string>();
+                    }
 
-                    AllDDSmerged.AddRange(ConvertedDDS);
-                    AllDDSmerged.AddRange(AlreadyDDSs);
+                    if (ConvertedDDS.Count != 0 || ConvertedDDS != null)
+                    {
+                        AllDDSmerged.AddRange(ConvertedDDS);
+
+                    }
+
+                    if (AlreadyDDSs.Count != 0 || AlreadyDDSs != null)
+                    {
+                        AllDDSmerged.AddRange(AlreadyDDSs);
+
+                    }
+
 
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nCreating {Path.GetFileName(folder)}.ytd file..."); });
 
 
                     CreateYTDfilesFromFolders(AllDDSmerged, folder);
 
+                    try
+                    {
+                        Directory.Delete(folder + "/converted_dds", true);
 
-                    Directory.Delete(folder + "/converted_dds", true); 
+                    }
+                    catch
+                    {
+
+                    }
 
 
                 }
