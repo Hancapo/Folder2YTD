@@ -451,7 +451,7 @@ namespace Folder2YTD
         private void btnHelpabout_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("This program was created to convert one or more folder with textures in its interior to a fully working .YTD\n\n● Quality settings are intended for its use in non-DDS files to convert them to .DDS with the selected quality.\n\n● Transparency detection works to determinate transparency for non-DDS files, in order to create a .DDS with proper compression, particularly useful when you are trying to bring textures to memory constrained enviroments such as FiveM servers.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("This program was created to convert one or more folders with textures in its interior to a fully working .YTD\n\n● Quality settings are intended for its use in non-DDS files to convert them to .DDS with the selected quality.\n\n● Transparency detection works to determinate transparency for non-DDS files, in order to create a .DDS with proper compression, particularly useful when you are trying to bring textures to memory constrained enviroments such as FiveM servers.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void spToolbar_MouseDown(object sender, MouseButtonEventArgs e)
