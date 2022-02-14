@@ -20,6 +20,8 @@ using CodeWalker.Utils;
 using BCnEncoder.Decoder;
 using Microsoft.Toolkit.HighPerformance;
 using SixLabors.ImageSharp.Processing;
+using MaterialDesignThemes.Wpf;
+using System.Windows.Media;
 
 namespace Folder2YTD
 {
@@ -30,6 +32,7 @@ namespace Folder2YTD
     {
         
         private List<string> FoldersList = new();
+        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
 
         public MainWindow()
         {
@@ -468,6 +471,28 @@ namespace Folder2YTD
         {
             LbProgressLog.ScrollToEnd();
 
+        }
+
+        private void btnToggleDarkMode_Click(object sender, RoutedEventArgs e)
+        {
+            ITheme theme = _paletteHelper.GetTheme();
+            IBaseTheme Temabase;
+
+            if (theme.GetBaseTheme() == BaseTheme.Dark)
+            {
+                Temabase = new MaterialDesignLightTheme();
+                LbProgressLog.Foreground = new SolidColorBrush(Colors.DarkGreen);
+            }
+            else
+            {
+                Temabase = new MaterialDesignDarkTheme();
+                LbProgressLog.Foreground = new SolidColorBrush(Colors.LightGreen);
+
+            }
+
+            theme.SetBaseTheme(Temabase);
+            _paletteHelper.SetTheme(theme);
+            
         }
     }
 }
