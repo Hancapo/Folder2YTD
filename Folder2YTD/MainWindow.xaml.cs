@@ -23,6 +23,7 @@ using SixLabors.ImageSharp.Processing;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
 using System.Diagnostics;
+using AutoUpdaterDotNET;
 
 namespace Folder2YTD
 {
