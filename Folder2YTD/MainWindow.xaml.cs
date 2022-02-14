@@ -114,13 +114,13 @@ namespace Folder2YTD
 
         public List<Texture> TextureListFromDDSFiles(string[] DdsFiles)
         {
-            List<Texture> TextureList = new List<Texture>();
+            List<Texture> TextureList = new();
 
             foreach (var DdsFile in DdsFiles)
             {
                 var fn = DdsFile;
 
-                if (!File.Exists(fn)) return null; //couldn't find file?
+                if (!File.Exists(fn)) return null;
 
                 try
                 {
@@ -134,7 +134,8 @@ namespace Folder2YTD
                 }
                 catch
                 {
-                    MessageBox.Show("Unable to load " + fn + ".\nAre you sure it's a valid .dds file?");
+                    MessageBox.Show($"Unable to load {fn}.\nAre you sure it's a valid .dds file?\nThis .dds file will be skipped for now.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
                 }
             }
 
