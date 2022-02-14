@@ -38,7 +38,7 @@
 
 
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+        <StackPanel Name="spCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
             <ComboBox materialDesign:HintAssist.Hint="Quality" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" x:Name="QualitySettings" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{DynamicResource MaterialDesignBody}" x:Name="TransparencyTypes" Margin="20" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>

@@ -184,10 +184,30 @@ namespace Folder2YTD
             }
             else
             {
+                ToggleControls(false);
                 await YTDfromFolders(FoldersList).ConfigureAwait(false);
+                ToggleControls(true);
+
             }
         }
 
+        private void ToggleControls(bool State)
+        {
+            //Parte de arriba
+            btnClose.Dispatcher.Invoke(() => { btnClose.IsEnabled = State; } );
+            btnMinimize.Dispatcher.Invoke(() => { btnMinimize.IsEnabled = State; });
+            btnToggleDarkMode.Dispatcher.Invoke(() => { btnToggleDarkMode.IsEnabled = State; });
+            btnHelpabout.Dispatcher.Invoke(() => { btnHelpabout.IsEnabled = State; });
+
+            //Parte 1
+            btnSelectFolders.Dispatcher.Invoke(() => { btnSelectFolders.IsEnabled = State; });
+            lbFolderView.Dispatcher.Invoke(() => { lbFolderView.IsHitTestVisible = State; });
+
+            //Parte del medio
+            spCenter.Dispatcher.Invoke(() => { spCenter.IsEnabled = State; });
+
+
+        }
         private async Task YTDfromFolders(List<string> AllFolders)
         {
             
