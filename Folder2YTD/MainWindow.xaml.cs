@@ -308,7 +308,7 @@ namespace Folder2YTD
         private void ConvertImageToDDS(string filename)
         {
 
-            bool isChecked = false;
+            bool isMipMapChecked = false;
 
             int QualitySelectedIndex = -1;
 
@@ -327,7 +327,9 @@ namespace Folder2YTD
 
             TransparencyTypes.Dispatcher.Invoke(() => { TransparencyDetection = TransparencyTypes.SelectedIndex; });
 
-            if (isChecked)
+            GenerateMipMaps.Dispatcher.Invoke(() => { isMipMapChecked = (bool)GenerateMipMaps.IsChecked; });
+
+            if (isMipMapChecked)
             {
                 bcEncoder.OutputOptions.GenerateMipMaps = true;
             }
@@ -398,6 +400,7 @@ namespace Folder2YTD
             {
 
 
+
                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed...");});
                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed, trying to fix the image..."); });
 
@@ -456,9 +459,10 @@ namespace Folder2YTD
             lbFolderView.ScrollIntoView(lbFolderView.SelectedItem);
         }
 
-        private void LbProgressLog_TextChanged(object sender, TextChangedEventArgs e)
+        private void LbProgressLog_TextChanged_1(object sender, TextChangedEventArgs e)
         {
-            //LbProgressLog.ScrollToEnd();
+            LbProgressLog.ScrollToEnd();
+
         }
     }
 }
