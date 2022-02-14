@@ -504,5 +504,12 @@ namespace Folder2YTD
             _paletteHelper.SetTheme(theme);
             
         }
+
+        private void lbFolderView_Drop(object sender, DragEventArgs e)
+        {
+            FoldersList = FoldersList.Concat(((string[])e.Data.GetData(DataFormats.FileDrop, true)).ToList()).Distinct().ToList();
+            lbFolderView.ItemsSource = FoldersList;
+
+        }
     }
 }

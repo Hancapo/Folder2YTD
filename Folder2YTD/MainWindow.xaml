@@ -33,7 +33,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                 <Button Margin="20" x:Name="btnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
-                <ListBox Width="960" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged"/>
+                <ListBox Width="960" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
             </StackPanel>
 
 
@@ -55,7 +55,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Content="0.2.8" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
+                <Label Content="0.2.9" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
                 <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF, WEBP" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 
