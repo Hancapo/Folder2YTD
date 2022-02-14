@@ -195,7 +195,7 @@ namespace Folder2YTD
                     lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
 
                     
-                    var ImgFiles = (List<string>)Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".dds") || x.EndsWith(".jpg") || x.EndsWith(".tga") || x.EndsWith(".bmp")).ToList();
+                    var ImgFiles = (List<string>)Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".dds") || x.EndsWith(".jpg") || x.EndsWith(".tga") || x.EndsWith(".bmp") || x.EndsWith(".webp") || x.EndsWith(".tiff") || x.EndsWith(".jpeg")).ToList();
 
                     int ImgCount = ImgFiles.Count();
 
@@ -236,7 +236,7 @@ namespace Folder2YTD
 
 
 
-                            if (ImgFileName.EndsWith(".png") || ImgFileName.EndsWith(".tga") || ImgFileName.EndsWith(".jpg") || ImgFileName.EndsWith(".bmp"))
+                            if (ImgFileName.EndsWith(".png") || ImgFileName.EndsWith(".tga") || ImgFileName.EndsWith(".jpg") || ImgFileName.EndsWith(".bmp") || ImgFileName.EndsWith(".webp") || ImgFileName.EndsWith(".tiff") || ImgFileName.EndsWith(".jpeg"))
                             {
 
                                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); }) ;
@@ -396,33 +396,13 @@ namespace Folder2YTD
                 File.WriteAllBytes(Path.GetDirectoryName(filename) + "/" + GetImageName + ".dds", ddsbytes);
                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} was sucessful..."); });
             }
-            catch(Exception ex)
+            catch
             {
 
 
 
-                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed...");});
-                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed, trying to fix the image..."); });
-
-
-                Image<Rgba32> image_ = Image.Load<Rgba32>(filename);
-
-                image_.Mutate(x => x.Resize(image_.Width / 2, image_.Height / 2));
+                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} has failed, skipping, this SHOULDN'T happen...");});
                 
-
-
-
-                var SaveDDSfixed = bcEncoder.EncodeToDds(image_);
-
-                MemoryStream ms = new();
-
-                SaveDDSfixed.Write(ms);
-
-                byte[] ddsbytes = ms.ToArray();
-
-
-                File.WriteAllBytes(Path.GetDirectoryName(filename) + "/" + GetImageName + ".dds", ddsbytes);
-                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(GetImageName)} was sucessful..."); });
 
 
             }
