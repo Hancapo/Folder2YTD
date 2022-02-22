@@ -44,19 +44,13 @@ namespace Folder2YTD
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             AppVersionLabel.Content = String.Format("v{0}", version);
             TransparencyTypes.ItemsSource = new List<string>() { "Off", "By pixels"};
-            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)" };
+            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)", "DDS Files" };
             QualitySettings.ItemsSource = new List<string>() { "Fast", "Balanced", "Best Quality" };
             FormatOutput.SelectedIndex = 0;
             TransparencyTypes.SelectedIndex = 1;
             QualitySettings.SelectedIndex = 1;
             GenerateMipMaps.IsChecked = true;
             AutoUpdater.Start("https://raw.githubusercontent.com/Hancapo/Folder2YTD/master/Folder2YTD/updateinfo.xml");
-
-
-        }
-
-        private void btnTesteo_Click(object sender, RoutedEventArgs e)
-        {
 
 
         }
@@ -184,9 +178,24 @@ namespace Folder2YTD
             }
             else
             {
-                ToggleControls(false);
-                await YTDfromFolders(FoldersList).ConfigureAwait(false);
-                ToggleControls(true);
+
+                switch (FormatOutput.SelectedIndex)
+                {
+                    case 0:
+                        ToggleControls(false);
+                        await YTDfromFolders(FoldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    case 1:
+                        ToggleControls(false);
+                        await DDSfromFolder(FoldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    default:
+                        break;
+                }
+
+                
 
             }
         }
@@ -205,9 +214,35 @@ namespace Folder2YTD
 
             //Parte del medio
             spCenter.Dispatcher.Invoke(() => { spCenter.IsEnabled = State; });
+            spThreshold.Dispatcher.Invoke(() => { spThreshold.IsEnabled = State; });
 
 
         }
+
+        
+        public (int,int) ConvertHeightAndWidthToPowerOfTwo(int height, int width, double threshold)
+        {
+            if (Math.Abs(height - width) < threshold)
+            {
+                if (height < width)
+                {
+                    width = height;
+
+                }
+                else
+                {
+                    height = width;
+                }
+            }
+
+            height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
+            width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
+
+            return (height,width);  
+
+
+        }
+
         private async Task YTDfromFolders(List<string> AllFolders)
         {
             
@@ -378,7 +413,63 @@ namespace Folder2YTD
                 }
             });
         }
+        
+        private async Task DDSfromFolder(List<string> AllFolders)
+        {
+            await Task.Run(() =>
+            {
+                foreach (var folder in AllFolders)
+                {
+                    List<string> ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".png") || x.EndsWith(".jpg") || x.EndsWith(".tga") || x.EndsWith(".bmp") || x.EndsWith(".webp") || x.EndsWith(".tiff") || x.EndsWith(".jpeg")).ToList();
 
+
+                    int ImgCount = ImgFiles.Count();
+
+                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
+
+
+                    if (ImgCount <= 0)
+                    {
+
+
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
+
+                    }
+                    else
+                    {
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + ImgCount + " compatible textures."); });
+
+                    }
+
+
+                    if (ImgFiles.Any())
+                    {
+
+                        foreach (var imgfile in ImgFiles)
+                        {
+                            string ImgFileName = Path.GetFileName(imgfile);
+
+
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); });
+
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to DDS..."); });
+
+
+                            ConvertImageToDDS(imgfile);
+
+                        }
+                    }
+
+
+                    
+
+                }
+
+                MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            });
+        }
+        
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             FoldersList.Clear();
@@ -397,6 +488,8 @@ namespace Folder2YTD
 
             
             Image<Rgba32> image = Image.Load<Rgba32>(filename);
+
+            image = ResizedImage(image);
             
             BcEncoder bcEncoder = new();
 
@@ -460,7 +553,6 @@ namespace Folder2YTD
 
             string GetImageName = Path.GetFileNameWithoutExtension(filename);
 
-            //FileStream fs = File.Create(Path.GetDirectoryName(filename) + "/" + GetImageName + ".dds");
 
 
             try
@@ -485,6 +577,17 @@ namespace Folder2YTD
 
         }
 
+        private Image<Rgba32> ResizedImage(Image<Rgba32> image)
+        {
+            double ThresholdA = 0;
+            ThresPower.Dispatcher.Invoke(() => { ThresholdA = ThresPower.Value; });
+
+            int Height = ConvertHeightAndWidthToPowerOfTwo(image.Height, image.Width, ThresholdA).Item1;
+            int Width = ConvertHeightAndWidthToPowerOfTwo(image.Height, image.Width, ThresholdA).Item2;
+
+            image.Mutate(x => x.Resize(Height, Width, KnownResamplers.Lanczos3));
+            return image;
+        }
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -498,7 +601,13 @@ namespace Folder2YTD
         private void btnHelpabout_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("This program was created to convert one or more folders with textures in its interior to a fully working .YTD\n\n● Quality settings are intended for its use in non-DDS files to convert them to .DDS with the selected quality.\n\n● Transparency detection works to determinate transparency for non-DDS files, in order to create a .DDS with proper compression, particularly useful when you are trying to bring textures to memory constrained enviroments such as FiveM servers.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("This program was created to convert one or more folders with textures in its interior to a fully working .YTD" +
+                "\n\n● Quality settings are intended for its use in non-DDS files to convert them to .DDS with the selected quality." +
+                "\n\n● Transparency detection works to determinate transparency for non-DDS files, in order to create a .DDS with proper compression, particularly useful when you are trying to bring textures to memory constrained enviroments such as FiveM servers." +
+                "\n\n● During conversion your textures will be resized to be power of two, this doesn't mean that your texture will become seamless, if your texture wasn't like that before the resizing, it won't make any difference." +
+                "\n\n● The threshold slider works if you need to manually adjust the threshold (a hidden value which determinates how the resized image will stretch out), if your resulting texture(s) are oddly stretched, you should change this value and try again but beware, this value applies to every texture." +
+                "\n\n● The format option lets you to choose between just converting the images directly to .DDS or, conversely, create YTD(s) out of the folders you have selected." +
+                "\n\n● Generate MipMaps? is responsible for generating mipmaps for your textures, this option should be left as checked.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void spToolbar_MouseDown(object sender, MouseButtonEventArgs e)
