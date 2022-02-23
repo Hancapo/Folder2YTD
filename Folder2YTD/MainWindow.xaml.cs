@@ -220,25 +220,41 @@ namespace Folder2YTD
         }
 
         
-        public (int,int) ConvertHeightAndWidthToPowerOfTwo(int height, int width, double threshold)
+        public (int,int) ConvertHeightAndWidthToPowerOfTwo(int width, int height, double threshold)
         {
-            if (Math.Abs(height - width) < threshold)
-            {
-                if (height < width)
-                {
-                    width = height;
 
-                }
-                else
+
+            if ((Math.Log2(width) % 1) == 0 && (Math.Log2(height) % 1) == 0)
+            {
+                return (width, height);
+            }
+            else
+            {
+                if (Math.Abs(height - width) < threshold)
                 {
-                    height = width;
+                    if (height < width)
+                    {
+                        width = height;
+
+                    }
+                    else
+                    {
+                        height = width;
+                    }
                 }
+
+                height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
+                width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
+
+                return (width, height);
             }
 
-            height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
-            width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
 
-            return (height,width);  
+
+
+            
+
+            
 
 
         }
@@ -582,10 +598,10 @@ namespace Folder2YTD
             double ThresholdA = 0;
             ThresPower.Dispatcher.Invoke(() => { ThresholdA = ThresPower.Value; });
 
-            int Height = ConvertHeightAndWidthToPowerOfTwo(image.Height, image.Width, ThresholdA).Item1;
-            int Width = ConvertHeightAndWidthToPowerOfTwo(image.Height, image.Width, ThresholdA).Item2;
+            int Height = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, ThresholdA).Item2;
+            int Width = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, ThresholdA).Item1;
 
-            image.Mutate(x => x.Resize(Height, Width, KnownResamplers.Lanczos3));
+            image.Mutate(x => x.Resize(Width, Height, KnownResamplers.Lanczos3));
             return image;
         }
         private void btnClose_Click(object sender, RoutedEventArgs e)
