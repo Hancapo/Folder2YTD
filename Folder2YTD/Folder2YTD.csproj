@@ -10,7 +10,7 @@
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <DebugType>full</DebugType>
     <Platforms>AnyCPU;x64</Platforms>
-    <FileVersion>0.3.4.0</FileVersion>
+    <FileVersion>0.3.4.1</FileVersion>
     <AssemblyVersion>0.3.4.1</AssemblyVersion>
   </PropertyGroup>
 
