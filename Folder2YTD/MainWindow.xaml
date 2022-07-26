@@ -24,32 +24,33 @@
         <StackPanel x:Name="spToolbar" Background="{StaticResource MaterialDesignShadowBrush }" MouseDown="spToolbar_MouseDown">
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button x:Name="btnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click" Cursor="Hand"/>
-                <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}"/>
+                <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
                 <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
-                <Button Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
+                <Button  ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
 
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                <Button Margin="20" x:Name="btnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
+                <Button ToolTip="Browse and select folders" Margin="20" x:Name="btnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
                 <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
             </StackPanel>
 
 
         </StackPanel>
         <StackPanel Name="spCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-            <ComboBox materialDesign:HintAssist.Hint="Quality" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" x:Name="QualitySettings" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <ComboBox materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{DynamicResource MaterialDesignBody}" x:Name="TransparencyTypes" Margin="20" Width="140" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <ComboBox materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="20" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <StackPanel Margin="20" Name="spThreshold">
-                <Label HorizontalAlignment="Center" Content="Power of two conversion threshold" Foreground="{DynamicResource MaterialDesignBody}"/>
-                <Slider Style="{StaticResource MaterialDesignDiscreteSlider}" Name="ThresPower" Minimum="0" Maximum="1000" Value="300" VerticalAlignment="Center" Width="200" />
+            <ComboBox ToolTip="Changes generated DDS's quality" materialDesign:HintAssist.Hint="Quality" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" x:Name="QualitySettings" Width="95" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <ComboBox ToolTip="Whether or not to detect transparency to properly compress the new DDS's" materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{DynamicResource MaterialDesignBody}" x:Name="TransparencyTypes" Margin="10" Width="144" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+            <ComboBox ToolTip="Choose between the available formats output" materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="10" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="FormatOutput_SelectionChanged"/>
+            <StackPanel VerticalAlignment="Center" Margin="10" Name="spThreshold" Width="150">
+                <Label HorizontalAlignment="Center" Content="Power of two threshold" Foreground="{DynamicResource MaterialDesignBody}"/>
+                <Slider ToolTip="Sets the threshold for power of two conversion" Style="{StaticResource MaterialDesignDiscreteSlider}" Name="ThresPower" Minimum="0" Maximum="1000" Value="300" VerticalAlignment="Center" Width="130" TickPlacement="None" />
 
             </StackPanel>
-            <CheckBox x:Name="GenerateMipMaps" Content="Generate MipMaps?" Foreground="{DynamicResource MaterialDesignBody}" Height="30" Margin="20,5,20,0"/>
-            <Button x:Name="btnConvert" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="btnConvert_Click"/>
-            <Button x:Name="btnClear" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignOutlinedButton}" Click="btnClear_Click" Width="81.1666666666667"/>
+            <CheckBox ToolTip="Whether or not generate MipMaps for converted DDS's" x:Name="GenerateMipMaps" Content="Generate MipMaps" Foreground="{DynamicResource MaterialDesignBody}" Height="30" Margin="10,5,20,0"/>
+            <CheckBox ToolTip="Whether or not show the containing folder upon YTD's conversion" x:Name="ShowFilesAfter" Foreground="{DynamicResource MaterialDesignBody}"  Content="Show result upon converting" Margin="10,5,20,0"></CheckBox>
+            <Button ToolTip="Process the present folders in the list" x:Name="btnConvert" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="btnConvert_Click"/>
+            <Button ToolTip="Clear the folder list" x:Name="btnClear" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignOutlinedButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Center">
             <TextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" Height="200" Foreground="LightGreen" TextChanged="LbProgressLog_TextChanged_1" Cursor="Arrow"/>
