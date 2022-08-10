@@ -1,6 +1,6 @@
 # Folder2YTD
 
-A program that can create .YTD files and convert non-DDS files to DDS using folders.
+Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 
 ## Features:
 - Quality settings.
