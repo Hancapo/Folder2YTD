@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Ookii.Dialogs.Wpf;
@@ -17,7 +13,6 @@ using MessageBox = System.Windows.MessageBox;
 using Image = SixLabors.ImageSharp.Image;
 using CodeWalker.GameFiles;
 using CodeWalker.Utils;
-using BCnEncoder.Decoder;
 using Microsoft.Toolkit.HighPerformance;
 using SixLabors.ImageSharp.Processing;
 using MaterialDesignThemes.Wpf;
@@ -35,7 +30,7 @@ namespace Folder2YTD
     {
 
         private List<string> FoldersList = new();
-        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
+        private readonly PaletteHelper _paletteHelper = new();
         private List<string> ParentFolders = new();
         public MainWindow()
         {
@@ -117,6 +112,7 @@ namespace Folder2YTD
         public YtdFile TexturesToYTD(List<Texture> TexturesList, YtdFile ytdFile)
         {
             var textureDictionary = ytdFile.TextureDict;
+            
 
             textureDictionary.BuildFromTextureList(TexturesList);
 
@@ -138,7 +134,8 @@ namespace Folder2YTD
                     var dds = File.ReadAllBytes(fn);
                     var tex = DDSIO.GetTexture(dds);
                     tex.Name = Path.GetFileNameWithoutExtension(fn);
-                    tex.NameHash = JenkHash.GenHash(tex.Name?.ToLowerInvariant());
+                    
+                    //tex.NameHash = JenkHash.GenHash(tex.Name?.ToLowerInvariant());
                     JenkIndex.Ensure(tex.Name?.ToLowerInvariant());
                     TextureList.Add(tex);
 
@@ -263,9 +260,9 @@ namespace Folder2YTD
 
             await Task.Run(() =>
             {
-                for (int i = 0; i < AllFolders.Count; i++)
-                {
 
+                Parallel.For(0, AllFolders.Count, i =>
+                {
                     bool ThereIsAnyConvertedDDSFile = false;
                     ParentFolders = AllFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
 
@@ -277,18 +274,18 @@ namespace Folder2YTD
 
                     lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
 
-                    
-                    var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => 
-                    x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) || 
+
+                    var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
+                    x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-                    int ImgCount = ImgFiles.Count();
+                    int ImgCount = ImgFiles.Count;
 
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
 
@@ -296,7 +293,7 @@ namespace Folder2YTD
                     if (ImgCount <= 0)
                     {
 
-                        
+
                         LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
 
                     }
@@ -320,7 +317,7 @@ namespace Folder2YTD
                             if (ImgFileExtension == ".png" || ImgFileExtension == ".tga" || ImgFileExtension == ".jpg" || ImgFileExtension == ".bmp" || ImgFileExtension == ".webp" || ImgFileExtension == ".tiff" || ImgFileExtension == ".tif" || ImgFileExtension == ".jpeg")
                             {
 
-                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); }) ;
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); });
 
                                 string NewFolder = $"{Path.GetDirectoryName(imgfile)}/converted_dds/";
 
@@ -426,13 +423,13 @@ namespace Folder2YTD
                     }
 
 
-                }
+                });
 
                 MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 bool IsFilesAfterChecked = false;
 
-                ShowFilesAfter.Dispatcher.Invoke(() => { IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked; });
+                ShowFilesAfter.Dispatcher.Invoke(() => IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked);
 
                 if (IsFilesAfterChecked)
                 {
@@ -555,25 +552,13 @@ namespace Folder2YTD
                 bcEncoder.OutputOptions.GenerateMipMaps = false;
             }
 
-            switch (QualitySelectedIndex)
+            bcEncoder.OutputOptions.Quality = QualitySelectedIndex switch
             {
-                case 0:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Fast;
-                    break;
-                case 1:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Balanced;
-                    break;
-
-                case 2:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.BestQuality;
-                    break;
-
-                default:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Balanced;
-                    break;
-            }
-
-
+                0 => CompressionQuality.Fast,
+                1 => CompressionQuality.Balanced,
+                2 => CompressionQuality.BestQuality,
+                _ => CompressionQuality.Balanced,
+            };
             if (TransparencyDetection == 1)
             {
                 if (IsTransparent(image))
