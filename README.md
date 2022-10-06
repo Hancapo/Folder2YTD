@@ -2,6 +2,9 @@
 
 Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 
+![image](https://user-images.githubusercontent.com/20731612/194188836-075a3d1f-104d-4abb-8651-41297bb2e7ae.png)
+
+
 ## Features:
 - Quality settings.
 - Transparency detection for a proper compression.
@@ -19,6 +22,11 @@ Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 - Download and install .NET 6 Runtime x64 https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.7-windows-x64-installer
 - Open it and download any update if any is avaible.
 - Enjoy
+
+## Usage:
+
+
+
 
 ## How to Build:
 Use Visual Studio Community 2022 and .NET 6
