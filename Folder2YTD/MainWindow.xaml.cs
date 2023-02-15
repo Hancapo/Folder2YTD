@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoUpdaterDotNET;
+using BCnEncoder.Encoder;
+using BCnEncoder.ImageSharp;
+using BCnEncoder.Shared;
+using CodeWalker.GameFiles;
+using CodeWalker.Utils;
+using MaterialDesignThemes.Wpf;
+using Ookii.Dialogs.Wpf;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Ookii.Dialogs.Wpf;
-using System.IO;
-using Path = System.IO.Path;
-using BCnEncoder.Encoder;
-using BCnEncoder.Shared;
-using BCnEncoder.ImageSharp;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using MessageBox = System.Windows.MessageBox;
-using Image = SixLabors.ImageSharp.Image;
-using CodeWalker.GameFiles;
-using CodeWalker.Utils;
-using BCnEncoder.Decoder;
-using Microsoft.Toolkit.HighPerformance;
-using SixLabors.ImageSharp.Processing;
-using MaterialDesignThemes.Wpf;
 using System.Windows.Media;
-using System.Diagnostics;
-using AutoUpdaterDotNET;
-using System.Reflection;
+using Image = SixLabors.ImageSharp.Image;
+using MessageBox = System.Windows.MessageBox;
+using Path = System.IO.Path;
 
 namespace Folder2YTD
 {
@@ -34,24 +28,21 @@ namespace Folder2YTD
     public partial class MainWindow : Window
     {
 
-        private List<string> FoldersList = new();
-        private readonly PaletteHelper _paletteHelper = new PaletteHelper();
-        private List<string> ParentFolders = new();
+        private List<string> _foldersList = new();
+        private readonly PaletteHelper _paletteHelper = new();
+        private List<string> _parentFolders = new();
         public MainWindow()
         {
-
             InitializeComponent();
             InitProgram();
-
-
         }
 
         public void InitProgram()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            AppVersionLabel.Content = String.Format("v{0}", version);
+            AppVersionLabel.Content = $"v{version}";
             TransparencyTypes.ItemsSource = new List<string>() { "Off", "By pixels" };
-            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)", "DDS Files" };
+            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)", "DDS Files", "YTD per image" };
             QualitySettings.ItemsSource = new List<string>() { "Fast", "Balanced", "Best Quality" };
             FormatOutput.SelectedIndex = 0;
             TransparencyTypes.SelectedIndex = 1;
@@ -63,63 +54,79 @@ namespace Folder2YTD
 
         public bool IsTransparent(Image<Rgba32> image)
         {
-            bool IsTransp = false;
-
+            var isTransp = false;
             image.ProcessPixelRows(amigo =>
             {
-                for (int y = 0; y < amigo.Height; y++)
+                for (var y = 0; y < amigo.Height; y++)
                 {
-                    Span<Rgba32> pixelRow = amigo.GetRowSpan(y);
+                    var pixelRow = amigo.GetRowSpan(y);
 
-                    foreach (ref Rgba32 pixel in pixelRow)
+                    foreach (ref var pixel in pixelRow)
                     {
-                        if (pixel.A < 255)
-                        {
-                            IsTransp = true;
-                            break;
-                        }
+                        if (pixel.A >= 255) continue;
+                        isTransp = true;
+                        break;
                     }
                 }
             });
+            return isTransp;
+        }
 
-            return IsTransp;
+        private void CreateYTDfilesFromFolders(List<string> images, string forceoutput)
+        {
+            if (images.Count == 0) return;
+            var ytd = new YtdFile
+            {
+                TextureDict = new TextureDictionary()
+            };
 
-            
+            var fname = Path.GetDirectoryName(forceoutput);
+
+            ytd.TextureDict.Textures = new ResourcePointerList64<Texture>();
+            ytd.TextureDict.TextureNameHashes = new ResourceSimpleList64_uint();
+            var data = ytd.Save();
+
+            ytd = TexturesToYTD(TextureListFromDDSFiles(images.ToArray()), ytd);
+
+            data = ytd.Save();
+
+            var outfpath = forceoutput + ".ytd";
+            File.WriteAllBytes(outfpath, data);
 
         }
 
-        private void CreateYTDfilesFromFolders(List<string> Images, string forceoutput)
+        private void CreateYTDFilesFromSingleImage(IReadOnlyList<string> images, string outputfolder)
         {
+            if (images.Count == 0) return;
 
-
-            if (Images.Count != 0)
+            Parallel.For(0, images.Count, i =>
             {
+                var ytd = new YtdFile
+                {
+                    TextureDict = new TextureDictionary
+                    {
+                        Textures = new ResourcePointerList64<Texture>(),
+                        TextureNameHashes = new ResourceSimpleList64_uint()
+                    }
+                };
 
-                var ytd = new YtdFile();
-                ytd.TextureDict = new TextureDictionary();
-
-                string fname = Path.GetDirectoryName(forceoutput);
-
-                ytd.TextureDict.Textures = new ResourcePointerList64<Texture>();
-                ytd.TextureDict.TextureNameHashes = new ResourceSimpleList64_uint();
                 var data = ytd.Save();
 
-                ytd = TexturesToYTD(TextureListFromDDSFiles(Images.ToArray()), ytd);
+                ytd = TexturesToYTD(TextureListFromDDSFiles(new[] { images[i] }), ytd);
 
                 data = ytd.Save();
 
-                var outfpath = forceoutput + ".ytd";
+                var outfpath = outputfolder + "\\" + Path.GetFileNameWithoutExtension(images[i]) + ".ytd";
                 File.WriteAllBytes(outfpath, data);
-            }
+            });
+
 
         }
 
-        public YtdFile TexturesToYTD(List<Texture> TexturesList, YtdFile ytdFile)
+        public YtdFile TexturesToYTD(List<Texture> texturesList, YtdFile ytdFile)
         {
             var textureDictionary = ytdFile.TextureDict;
-
-            textureDictionary.BuildFromTextureList(TexturesList);
-
+            textureDictionary.BuildFromTextureList(texturesList);
             return ytdFile;
         }
 
@@ -154,239 +161,111 @@ namespace Folder2YTD
 
         }
 
-        private void btnSelectFolders_Click(object sender, RoutedEventArgs e)
+        private async Task YTDperImage(List<string> allFolders)
         {
-
-            VistaFolderBrowserDialog vfbd = new()
-            {
-                Multiselect = true
-            };
-
-            if ((bool)vfbd.ShowDialog())
-            {
-                FoldersList = FoldersList.Concat(vfbd.SelectedPaths.ToList()).Distinct().ToList();
-
-                lbFolderView.ItemsSource = FoldersList;
-                LbProgressLog.Text = null;
-                lbFolderView.ScrollIntoView(lbFolderView.Items[0]);
-
-            }
-
-        }
-
-        private async void btnConvert_Click(object sender, RoutedEventArgs e)
-        {
-            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text = String.Empty; });
-
-            if (FoldersList.Count == 0)
-            {
-                MessageBox.Show("Add some folders before converting.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-
-                switch (FormatOutput.SelectedIndex)
-                {
-                    case 0:
-                        ToggleControls(false);
-                        await YTDfromFolders(FoldersList).ConfigureAwait(false);
-                        ToggleControls(true);
-                        break;
-                    case 1:
-                        ToggleControls(false);
-                        await DDSfromFolder(FoldersList).ConfigureAwait(false);
-                        ToggleControls(true);
-                        break;
-                    default:
-                        break;
-                }
-
-                
-
-            }
-        }
-
-        private void ToggleControls(bool State)
-        {
-            //Parte de arriba
-            btnClose.Dispatcher.Invoke(() => { btnClose.IsEnabled = State; } );
-            btnMinimize.Dispatcher.Invoke(() => { btnMinimize.IsEnabled = State; });
-            btnToggleDarkMode.Dispatcher.Invoke(() => { btnToggleDarkMode.IsEnabled = State; });
-            btnHelpabout.Dispatcher.Invoke(() => { btnHelpabout.IsEnabled = State; });
-
-            //Parte 1
-            btnSelectFolders.Dispatcher.Invoke(() => { btnSelectFolders.IsEnabled = State; });
-            lbFolderView.Dispatcher.Invoke(() => { lbFolderView.IsHitTestVisible = State; });
-
-            //Parte del medio
-            spCenter.Dispatcher.Invoke(() => { spCenter.IsEnabled = State; });
-            spThreshold.Dispatcher.Invoke(() => { spThreshold.IsEnabled = State; });
-
-
-        }
-
-        
-        public (int,int) ConvertHeightAndWidthToPowerOfTwo(int width, int height, double threshold)
-        {
-
-
-            if ((Math.Log2(width) % 1) == 0 && (Math.Log2(height) % 1) == 0)
-            {
-                return (width, height);
-            }
-            else
-            {
-                if (Math.Abs(height - width) < threshold)
-                {
-                    if (height < width)
-                    {
-                        width = height;
-
-                    }
-                    else
-                    {
-                        height = width;
-                    }
-                }
-
-                height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
-                width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
-
-                return (width, height);
-            }
-
-        }
-
-        private async Task YTDfromFolders(List<string> AllFolders)
-        {
-            
-
             await Task.Run(() =>
             {
-                for (int i = 0; i < AllFolders.Count; i++)
+                _parentFolders = allFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
+
+                Parallel.For(0, allFolders.Count, i =>
                 {
-
                     bool ThereIsAnyConvertedDDSFile = false;
-                    ParentFolders = AllFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
-
                     List<string> ConvertedDDS = new();
                     List<string> AlreadyDDSs = new();
                     List<string> AllDDSmerged = new();
-
-                    string? folder = AllFolders[i];
-
+                    string? folder = allFolders[i];
                     lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
-
-                    
-                    var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x => 
-                    x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) || 
-                    x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) || 
+                    var imgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
+                    x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tif", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-                    int ImgCount = ImgFiles.Count();
+                    int imgCount = imgFiles.Count;
 
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
 
 
-                    if (ImgCount <= 0)
+                    if (imgCount <= 0)
                     {
 
-                        
+
                         LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
 
                     }
                     else
                     {
-                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + ImgCount + " compatible textures."); });
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + imgCount + " compatible textures."); });
 
                     }
 
-
-                    foreach (var imgfile in ImgFiles)
+                    Parallel.ForEach(imgFiles, imgfile =>
                     {
+                        if (!imgFiles.Any()) return;
+                        string imgFileName = Path.GetFileName(imgfile);
+                        string imgFileExtension = Path.GetExtension(imgfile).ToLowerInvariant();
 
-
-                        if (ImgFiles.Any())
+                        if (imgFileExtension is ".png" or ".tga" or ".jpg" or ".bmp" or ".webp" or ".tiff" or ".tif" or ".jpeg")
                         {
-                            string ImgFileName = Path.GetFileName(imgfile);
-                            string ImgFileExtension = Path.GetExtension(imgfile).ToLowerInvariant();
-                            string ImgFileNameWithoutExt = Path.GetFileNameWithoutExtension(imgfile);
 
-                            if (ImgFileExtension == ".png" || ImgFileExtension == ".tga" || ImgFileExtension == ".jpg" || ImgFileExtension == ".bmp" || ImgFileExtension == ".webp" || ImgFileExtension == ".tiff" || ImgFileExtension == ".tif" || ImgFileExtension == ".jpeg")
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {imgFileName} found..."); });
+
+                            string NewFolder = $"{Path.GetDirectoryName(imgfile)}/converted_dds/";
+
+                            if (!Directory.Exists(NewFolder))
                             {
-
-                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); }) ;
-
-                                string NewFolder = $"{Path.GetDirectoryName(imgfile)}/converted_dds/";
-
-                                if (!Directory.Exists(NewFolder))
-                                {
-                                    Directory.CreateDirectory(NewFolder);
-                                }
+                                Directory.CreateDirectory(NewFolder);
+                            }
 
 
-                                string MovedImageName = $"{NewFolder}{ImgFileName}";
+                            var MovedImageName = $"{NewFolder}{imgFileName}";
 
-                                File.Copy(imgfile, MovedImageName, true);
+                            File.Copy(imgfile, MovedImageName, true);
 
-                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to DDS..."); });
-
-
-                                if (ConvertImageToDDS(MovedImageName))
-                                {
-                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} was sucessful..."); });
-
-                                }
-                                else
-                                {
-                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} has failed, skipping, this SHOULDN'T happen..."); });
-
-                                }
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {imgFileName} to DDS..."); });
 
 
-
-
-                                File.Delete(MovedImageName);
-
-
-
+                            if (ConvertImageToDds(MovedImageName))
+                            {
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(imgFileName)} was successful..."); });
 
                             }
-                            if (ImgFileExtension == ".dds")
+                            else
                             {
-                                AlreadyDDSs.Add(imgfile);
-                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS file {ImgFileName} found..."); });
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(imgFileName)} has failed, skipping, this SHOULDN'T happen..."); });
 
                             }
+
+
+
+
+                            File.Delete(MovedImageName);
 
 
 
 
                         }
-                    }
+
+                        if (imgFileExtension != ".dds") return;
+                        AlreadyDDSs.Add(imgfile);
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS file {imgFileName} found..."); });
+                    });
 
 
                     List<string> CheckConvertedDDS = new();
 
                     if (Directory.Exists(folder + "/converted_dds/"))
                     {
-                        CheckConvertedDDS = Directory.EnumerateFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
+                        CheckConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
 
                     }
-                    else
-                    {
-                        CheckConvertedDDS = new List<string>();
-                    }
-
-
 
                     ThereIsAnyConvertedDDSFile = CheckConvertedDDS.Any();
-
 
                     if (!ThereIsAnyConvertedDDSFile)
                     {
@@ -409,49 +288,46 @@ namespace Folder2YTD
                         AllDDSmerged.AddRange(AlreadyDDSs);
 
                     }
+                    //Create one YTD file per image inside the folder
+                    CreateYTDFilesFromSingleImage(AllDDSmerged, folder);
 
-
-                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nCreating {Path.GetFileName(folder)}.ytd file..."); });
-
-
-
-
-
-                    CreateYTDfilesFromFolders(AllDDSmerged, folder);
 
                     if (ThereIsAnyConvertedDDSFile)
                     {
                         Directory.Delete(folder + "/converted_dds", true);
-
                     }
+                });
 
-
-                }
-
-                MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 bool IsFilesAfterChecked = false;
 
-                ShowFilesAfter.Dispatcher.Invoke(() => { IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked; });
+                ShowFilesAfter.Dispatcher.Invoke(() => IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked);
 
-                if (IsFilesAfterChecked)
+                if (!IsFilesAfterChecked) return;
+                foreach (var parentFolder in _parentFolders)
                 {
-                    foreach (var parentFolder in ParentFolders)
-                    {
-                        Process.Start("explorer.exe", parentFolder);
+                    Process.Start("explorer.exe", parentFolder);
 
-                    }
                 }
-                
+
             });
         }
-        
-        private async Task DDSfromFolder(List<string> AllFolders)
+
+        private async Task YTDfromFolders(List<string> allFolders)
         {
             await Task.Run(() =>
             {
-                foreach (var folder in AllFolders)
+                _parentFolders = allFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
+
+                Parallel.For(0, allFolders.Count, i =>
                 {
+                    bool ThereIsAnyConvertedDDSFile = false;
+                    List<string> ConvertedDDS = new();
+                    List<string> AlreadyDDSs = new();
+                    List<string> AllDDSmerged = new();
+                    string? folder = allFolders[i];
+                    lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
                     var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
                     x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) ||
@@ -460,8 +336,10 @@ namespace Folder2YTD
                     x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tif", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    int ImgCount = ImgFiles.Count();
+
+                    int ImgCount = ImgFiles.Count;
 
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
 
@@ -469,17 +347,169 @@ namespace Folder2YTD
                     if (ImgCount <= 0)
                     {
 
+
                         LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
+
                     }
                     else
                     {
                         LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + ImgCount + " compatible textures."); });
 
                     }
-                    if (ImgFiles.Any())
+
+                    Parallel.ForEach(ImgFiles, imgfile =>
+                    {
+                        if (ImgFiles.Any())
+                        {
+                            string ImgFileName = Path.GetFileName(imgfile);
+                            string ImgFileExtension = Path.GetExtension(imgfile).ToLowerInvariant();
+                            string ImgFileNameWithoutExt = Path.GetFileNameWithoutExtension(imgfile);
+
+                            if (ImgFileExtension is ".png" or ".tga" or ".jpg" or ".bmp" or ".webp" or ".tiff" or ".tif" or ".jpeg")
+                            {
+
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); });
+
+                                string NewFolder = $"{Path.GetDirectoryName(imgfile)}/converted_dds/";
+
+                                if (!Directory.Exists(NewFolder))
+                                {
+                                    Directory.CreateDirectory(NewFolder);
+                                }
+
+
+                                string MovedImageName = $"{NewFolder}{ImgFileName}";
+
+                                File.Copy(imgfile, MovedImageName, true);
+
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to DDS..."); });
+
+
+                                if (ConvertImageToDds(MovedImageName))
+                                {
+                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} was successful..."); });
+
+                                }
+                                else
+                                {
+                                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS conversion of {Path.GetFileName(ImgFileName)} has failed, skipping, this SHOULDN'T happen..."); });
+
+                                }
+
+
+
+
+                                File.Delete(MovedImageName);
+
+
+
+
+                            }
+
+                            if (ImgFileExtension != ".dds") return;
+                            AlreadyDDSs.Add(imgfile);
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nDDS file {ImgFileName} found..."); });
+
+
+
+
+                        }
+                    });
+
+
+                    List<string> CheckConvertedDDS = new();
+
+                    if (Directory.Exists(folder + "/converted_dds/"))
+                    {
+                        CheckConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
+
+                    }
+
+                    ThereIsAnyConvertedDDSFile = CheckConvertedDDS.Any();
+
+                    if (!ThereIsAnyConvertedDDSFile)
+                    {
+                        ConvertedDDS = new List<string>();
+
+                    }
+                    else
+                    {
+                        ConvertedDDS = Directory.GetFiles(folder + "/converted_dds/", "*.dds", SearchOption.TopDirectoryOnly).ToList();
+                    }
+
+                    if (ConvertedDDS.Count != 0 || ConvertedDDS != null)
+                    {
+                        AllDDSmerged.AddRange(ConvertedDDS);
+
+                    }
+
+                    if (AlreadyDDSs.Count != 0 || AlreadyDDSs != null)
+                    {
+                        AllDDSmerged.AddRange(AlreadyDDSs);
+
+                    }
+                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nCreating {Path.GetFileName(folder)}.ytd file..."); });
+                    CreateYTDfilesFromFolders(AllDDSmerged, folder);
+
+                    if (ThereIsAnyConvertedDDSFile)
+                    {
+                        Directory.Delete(folder + "/converted_dds", true);
+                    }
+                });
+
+                MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                bool IsFilesAfterChecked = false;
+
+                ShowFilesAfter.Dispatcher.Invoke(() => IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked);
+
+                if (IsFilesAfterChecked)
+                {
+                    foreach (var parentFolder in _parentFolders)
+                    {
+                        Process.Start("explorer.exe", parentFolder);
+
+                    }
+                }
+
+            });
+        }
+
+        private async Task DDSfromFolder(List<string> allFolders)
+        {
+            await Task.Run(() =>
+            {
+                Parallel.ForEach(allFolders, folder =>
+                {
+                    var imgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
+                    x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".webp", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tiff", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".tif", StringComparison.InvariantCultureIgnoreCase) ||
+                    x.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    int? imgCount = imgFiles.Count;
+
+                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
+
+
+                    if (imgCount <= 0)
                     {
 
-                        foreach (var imgfile in ImgFiles)
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
+                    }
+                    else
+                    {
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + imgCount + " compatible textures."); });
+
+                    }
+                    if (imgFiles.Any())
+                    {
+
+                        Parallel.ForEach(imgFiles, imgfile =>
                         {
                             string ImgFileName = Path.GetFileName(imgfile);
 
@@ -488,9 +518,9 @@ namespace Folder2YTD
 
                             LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to DDS..."); });
 
-                            if (ConvertImageToDDS(imgfile))
+                            if (ConvertImageToDds(imgfile))
                             {
-                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nThe image was sucessfully converted to DDS..."); });
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nThe image was successfully converted to DDS..."); });
 
                             }
                             else
@@ -498,23 +528,21 @@ namespace Folder2YTD
                                 LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nThe image couldn't be converted to DDS, skipping..."); });
 
                             }
-
-                        }
+                        });
                     }
-                }
+                });
 
-                MessageBox.Show($"Done, {AllFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
 
             });
         }
-        
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            FoldersList.Clear();
+            _foldersList.Clear();
             lbFolderView.ItemsSource = null;
             LbProgressLog.Text = String.Empty;
         }
-        private bool ConvertImageToDDS(string filename)
+        private bool ConvertImageToDds(string filename)
         {
             bool isMipMapChecked = false;
 
@@ -536,7 +564,7 @@ namespace Folder2YTD
             }
 
             image = ResizedImage(image);
-            
+
             BcEncoder bcEncoder = new();
 
             bcEncoder.OutputOptions.FileFormat = OutputFileFormat.Dds;
@@ -555,25 +583,13 @@ namespace Folder2YTD
                 bcEncoder.OutputOptions.GenerateMipMaps = false;
             }
 
-            switch (QualitySelectedIndex)
+            bcEncoder.OutputOptions.Quality = QualitySelectedIndex switch
             {
-                case 0:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Fast;
-                    break;
-                case 1:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Balanced;
-                    break;
-
-                case 2:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.BestQuality;
-                    break;
-
-                default:
-                    bcEncoder.OutputOptions.Quality = CompressionQuality.Balanced;
-                    break;
-            }
-
-
+                0 => CompressionQuality.Fast,
+                1 => CompressionQuality.Balanced,
+                2 => CompressionQuality.BestQuality,
+                _ => CompressionQuality.Balanced,
+            };
             if (TransparencyDetection == 1)
             {
                 if (IsTransparent(image))
@@ -613,16 +629,15 @@ namespace Folder2YTD
 
 
         }
-
         private Image<Rgba32> ResizedImage(Image<Rgba32> image)
         {
-            double ThresholdA = 0;
-            ThresPower.Dispatcher.Invoke(() => { ThresholdA = ThresPower.Value; });
+            double thresholdA = 0;
+            ThresPower.Dispatcher.Invoke(() => { thresholdA = ThresPower.Value; });
+            
+            var height = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, thresholdA).Item2;
+            var width = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, thresholdA).Item1;
 
-            int Height = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, ThresholdA).Item2;
-            int Width = ConvertHeightAndWidthToPowerOfTwo(image.Width, image.Height, ThresholdA).Item1;
-
-            image.Mutate(x => x.Resize(Width, Height, KnownResamplers.Lanczos3));
+            image.Mutate(x => x.Resize(width, height, KnownResamplers.Lanczos3));
             return image;
         }
         private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -663,7 +678,7 @@ namespace Folder2YTD
 
         private void btnToggleDarkMode_Click(object sender, RoutedEventArgs e)
         {
-            ITheme theme = _paletteHelper.GetTheme();
+            var theme = _paletteHelper.GetTheme();
             IBaseTheme Temabase;
 
             if (theme.GetBaseTheme() == BaseTheme.Dark)
@@ -680,31 +695,15 @@ namespace Folder2YTD
 
             theme.SetBaseTheme(Temabase);
             _paletteHelper.SetTheme(theme);
-            
+
         }
 
         private void lbFolderView_Drop(object sender, System.Windows.DragEventArgs e)
         {
-
-
-            List<string> Folderpaths = ((string[])e.Data.GetData(System.Windows.DataFormats.FileDrop, true)).ToList();
-
-            List<string> ValidFolders = new();
-
-            foreach (string Folderpath in Folderpaths)
-            {
-
-                if (Directory.Exists(Folderpath))
-                {
-                    ValidFolders.Add(Folderpath);
-                }
-
-
-            }
-
-
-            FoldersList = FoldersList.Concat(ValidFolders.ToList()).Distinct().ToList();
-            lbFolderView.ItemsSource = FoldersList;
+            List<string> folderpaths = ((string[])e.Data.GetData(System.Windows.DataFormats.FileDrop, true)).ToList();
+            List<string> validFolders = folderpaths.Where(folderpath => Directory.Exists(folderpath)).ToList();
+            _foldersList = _foldersList.Concat(validFolders.ToList()).Distinct().ToList();
+            lbFolderView.ItemsSource = _foldersList;
 
         }
 
@@ -716,13 +715,107 @@ namespace Folder2YTD
 
         private void FormatOutput_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(FormatOutput.SelectedIndex == 1)
+            ShowFilesAfter.IsEnabled = FormatOutput.SelectedIndex != 1;
+        }
+
+        private void ToggleControls(bool state)
+        {
+            //Parte de arriba
+            btnClose.Dispatcher.Invoke(() => { btnClose.IsEnabled = state; });
+            btnMinimize.Dispatcher.Invoke(() => { btnMinimize.IsEnabled = state; });
+            btnToggleDarkMode.Dispatcher.Invoke(() => { btnToggleDarkMode.IsEnabled = state; });
+            btnHelpabout.Dispatcher.Invoke(() => { btnHelpabout.IsEnabled = state; });
+
+            //Parte 1
+            btnSelectFolders.Dispatcher.Invoke(() => { btnSelectFolders.IsEnabled = state; });
+            lbFolderView.Dispatcher.Invoke(() => { lbFolderView.IsHitTestVisible = state; });
+
+            //Parte del medio
+            spCenter.Dispatcher.Invoke(() => { spCenter.IsEnabled = state; });
+            spThreshold.Dispatcher.Invoke(() => { spThreshold.IsEnabled = state; });
+        }
+
+        public (int, int) ConvertHeightAndWidthToPowerOfTwo(int width, int height, double threshold)
+        {
+
+
+            if ((Math.Log2(width) % 1) == 0 && (Math.Log2(height) % 1) == 0)
             {
-                ShowFilesAfter.IsEnabled = false;
+                return (width, height);
             }
             else
             {
-                ShowFilesAfter.IsEnabled = true;
+                if (Math.Abs(height - width) < threshold)
+                {
+                    if (height < width)
+                    {
+                        width = height;
+
+                    }
+                    else
+                    {
+                        height = width;
+                    }
+                }
+
+                height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
+                width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
+
+                return (width, height);
+            }
+
+        }
+
+        private void btnSelectFolders_Click(object sender, RoutedEventArgs e)
+        {
+
+            VistaFolderBrowserDialog vfbd = new()
+            {
+                Multiselect = true
+            };
+
+            if ((bool)vfbd.ShowDialog())
+            {
+                _foldersList = _foldersList.Concat(vfbd.SelectedPaths.ToList()).Distinct().ToList();
+
+                lbFolderView.ItemsSource = _foldersList;
+                LbProgressLog.Text = null;
+                lbFolderView.ScrollIntoView(lbFolderView.Items[0]);
+            }
+
+        }
+
+        private async void btnConvert_Click(object sender, RoutedEventArgs e)
+        {
+            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text = string.Empty; });
+
+            if (_foldersList.Count == 0)
+            {
+                MessageBox.Show("Add some folders before converting.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+
+                switch (FormatOutput.SelectedIndex)
+                {
+                    case 0:
+                        ToggleControls(false);
+                        await YTDfromFolders(_foldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    case 1:
+                        ToggleControls(false);
+                        await DDSfromFolder(_foldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    case 2:
+                        ToggleControls(false);
+                        await YTDperImage(_foldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
