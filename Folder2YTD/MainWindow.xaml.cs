@@ -95,7 +95,7 @@ namespace Folder2YTD
 
         }
 
-        private void CreateYTDFilesFromSingleImage(List<string> images, string outputfolder)
+        private void CreateYTDFilesFromSingleImage(IReadOnlyList<string> images, string outputfolder)
         {
             if (images.Count == 0) return;
 
@@ -103,11 +103,13 @@ namespace Folder2YTD
             {
                 var ytd = new YtdFile
                 {
-                    TextureDict = new TextureDictionary()
+                    TextureDict = new TextureDictionary
+                    {
+                        Textures = new ResourcePointerList64<Texture>(),
+                        TextureNameHashes = new ResourceSimpleList64_uint()
+                    }
                 };
 
-                ytd.TextureDict.Textures = new ResourcePointerList64<Texture>();
-                ytd.TextureDict.TextureNameHashes = new ResourceSimpleList64_uint();
                 var data = ytd.Save();
 
                 ytd = TexturesToYTD(TextureListFromDDSFiles(new[] { images[i] }), ytd);
@@ -184,12 +186,12 @@ namespace Folder2YTD
                     x.EndsWith(".tif", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-                    int ImgCount = imgFiles.Count;
+                    int imgCount = imgFiles.Count;
 
                     LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
 
 
-                    if (ImgCount <= 0)
+                    if (imgCount <= 0)
                     {
 
 
@@ -198,7 +200,7 @@ namespace Folder2YTD
                     }
                     else
                     {
-                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + ImgCount + " compatible textures."); });
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + imgCount + " compatible textures."); });
 
                     }
 
