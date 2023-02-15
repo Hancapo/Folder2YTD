@@ -13,7 +13,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Folder2YTD"
         mc:Ignorable="d"
-        Title="Folders2YTD by MrVicho13" Height="800" Width="1200" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None">
+        Title="Folders2YTD by MrVicho13" Height="800" Width="1200" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.2*"/>
