@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Application = System.Windows.Application;
 using Image = SixLabors.ImageSharp.Image;
 using MessageBox = System.Windows.MessageBox;
 using Path = System.IO.Path;
@@ -31,10 +32,16 @@ namespace Folder2YTD
         private List<string> _foldersList = new();
         private readonly PaletteHelper _paletteHelper = new();
         private List<string> _parentFolders = new();
+       
+        //Just for command mode
+        public bool VichoToolsMode = false;
+        
+        
         public MainWindow()
         {
             InitializeComponent();
             InitProgram();
+            
         }
 
         public void InitProgram()
@@ -50,6 +57,61 @@ namespace Folder2YTD
             GenerateMipMaps.IsChecked = true;
             ShowFilesAfter.IsChecked = true;
             AutoUpdater.Start("https://raw.githubusercontent.com/Hancapo/Folder2YTD/master/Folder2YTD/updateinfo.xml");
+            if (File.Exists("./config.ini"))
+            {
+                VichoToolsMode = true;
+                SetSettingsFromArgs();
+            }
+        }
+
+        public void SetSettingsFromArgs()
+        {
+            IniFile iniF = new("./config.ini");
+            bool _SilentMode = bool.Parse(iniF.ReadValue("Settings", "silentMode"));
+            bool _Mipmaps = bool.Parse(iniF.ReadValue("Settings", "mipmaps"));
+            bool _Transp = bool.Parse(iniF.ReadValue("Settings", "transparency"));
+            string _Folders = iniF.ReadValue("Settings", "folder");
+            string _Quality = iniF.ReadValue("Settings", "quality");
+            string _Format = iniF.ReadValue("Settings", "format");
+
+            if (_SilentMode)
+            {
+                Visibility = Visibility.Hidden;
+            }
+
+            GenerateMipMaps.IsChecked = _Mipmaps;
+
+            TransparencyTypes.SelectedIndex = _Transp switch
+            {
+                false => 0,
+                true => 1
+            };
+
+            QualitySettings.SelectedIndex = _Quality switch
+            {
+                "fast" => 0,
+                "balanced" => 1,
+                "hq" => 2,
+                _ => QualitySettings.SelectedIndex
+            };
+
+            if (_Format == "ytd")
+            {
+                FormatOutput.SelectedIndex = 0;
+            }
+
+            if (_Folders != string.Empty && Directory.Exists(_Folders))
+            {
+                lbFolderView.ItemsSource = Directory.GetDirectories(_Folders);
+                _foldersList = Directory.GetDirectories(_Folders).ToList();
+
+                var eventArgs = new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent);
+
+                btnConvert.RaiseEvent(eventArgs);
+                File.Delete("./config.ini");
+
+            }
+
         }
 
         public bool IsTransparent(Image<Rgba32> image)
@@ -327,7 +389,7 @@ namespace Folder2YTD
                     List<string> AlreadyDDSs = new();
                     List<string> AllDDSmerged = new();
                     string? folder = allFolders[i];
-                    lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
+                    //lbFolderView.Dispatcher.Invoke(() => { lbFolderView.SelectedIndex = i; });
                     var ImgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
                     x.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase) ||
                     x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase) ||
@@ -457,20 +519,28 @@ namespace Folder2YTD
                     }
                 });
 
-                MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                bool IsFilesAfterChecked = false;
-
-                ShowFilesAfter.Dispatcher.Invoke(() => IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked);
-
-                if (IsFilesAfterChecked)
+                if (!VichoToolsMode)
                 {
-                    foreach (var parentFolder in _parentFolders)
-                    {
-                        Process.Start("explorer.exe", parentFolder);
+                    MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    bool IsFilesAfterChecked = false;
 
+                    ShowFilesAfter.Dispatcher.Invoke(() => IsFilesAfterChecked = (bool)ShowFilesAfter.IsChecked);
+
+                    if (IsFilesAfterChecked)
+                    {
+                        foreach (var parentFolder in _parentFolders)
+                        {
+                            Process.Start("explorer.exe", parentFolder);
+
+                        }
                     }
                 }
+                else
+                {
+                    Dispatcher.Invoke(() => {Close();});
+                }
+
+                
 
             });
         }
@@ -801,7 +871,10 @@ namespace Folder2YTD
                     case 0:
                         ToggleControls(false);
                         await YTDfromFolders(_foldersList).ConfigureAwait(false);
-                        ToggleControls(true);
+                        if (!VichoToolsMode)
+                        {
+                            ToggleControls(true);
+                        }
                         break;
                     case 1:
                         ToggleControls(false);

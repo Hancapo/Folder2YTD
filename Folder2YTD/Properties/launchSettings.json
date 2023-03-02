@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Profile 2": {
+      "commandName": "Project"
+    },
+    "Vicho Tools": {
+      "commandName": "Project",
+      "commandLineArgs": "-mipmaps -format \"ytd\" -quality \"hq\" -transparency -folder \"C:\\Users\\vicho\\Music\" -silentmode"
+    }
+  }
+}
