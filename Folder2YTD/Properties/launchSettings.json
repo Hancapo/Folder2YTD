@@ -6,6 +6,10 @@
     "Vicho Tools": {
       "commandName": "Project",
       "commandLineArgs": "-mipmaps -format \"ytd\" -quality \"hq\" -transparency -folder \"C:\\Users\\vicho\\Music\" -silentmode"
+    },
+    "SilentMode": {
+      "commandName": "Project",
+      "commandLineArgs": "-silentmode"
     }
   }
 }

@@ -74,10 +74,7 @@ namespace Folder2YTD
             string _Quality = iniF.ReadValue("Settings", "quality");
             string _Format = iniF.ReadValue("Settings", "format");
 
-            if (_SilentMode)
-            {
-                Visibility = Visibility.Hidden;
-            }
+
 
             GenerateMipMaps.IsChecked = _Mipmaps;
 

@@ -67,9 +67,12 @@ namespace Folder2YTD
 
                 
             }
-
             MainWindow mw = new();
-            mw.Show();
+            if (!silentMode)
+            {
+                mw.Show();
+            }
+
 
 
         }
