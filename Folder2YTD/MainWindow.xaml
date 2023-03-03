@@ -27,7 +27,9 @@
                 <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
                 <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
                 <Button  ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
-
+                <TextBlock FontWeight="SemiBold" VerticalAlignment="Center">
+                    <Hyperlink NavigateUri="https://github.com/Hancapo/VichoTools" x:Name="HlVichoTools" RequestNavigate="HlVichoTools_RequestNavigate">!Now with Vicho's Tools integration, click here to learn more</Hyperlink>
+                </TextBlock>
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">

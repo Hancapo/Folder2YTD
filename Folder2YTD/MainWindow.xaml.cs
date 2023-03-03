@@ -9,6 +9,7 @@ using Ookii.Dialogs.Wpf;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -887,6 +888,16 @@ namespace Folder2YTD
                         break;
                 }
             }
+        }
+
+        private void HlVichoTools_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = HlVichoTools.NavigateUri.AbsoluteUri,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
     }
 }
