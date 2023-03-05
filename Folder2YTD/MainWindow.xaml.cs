@@ -535,7 +535,7 @@ namespace Folder2YTD
                 }
                 else
                 {
-                    Dispatcher.Invoke(() => {Close();});
+                    Dispatcher.Invoke(Close);
                 }
 
                 
@@ -579,7 +579,7 @@ namespace Folder2YTD
 
                         Parallel.ForEach(imgFiles, imgfile =>
                         {
-                            string ImgFileName = Path.GetFileName(imgfile);
+                            var ImgFileName = Path.GetFileName(imgfile);
 
 
                             LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); });
@@ -608,15 +608,15 @@ namespace Folder2YTD
         {
             _foldersList.Clear();
             lbFolderView.ItemsSource = null;
-            LbProgressLog.Text = String.Empty;
+            LbProgressLog.Text = string.Empty;
         }
         private bool ConvertImageToDds(string filename)
         {
-            bool isMipMapChecked = false;
+            var isMipMapChecked = false;
 
-            int QualitySelectedIndex = -1;
+            var QualitySelectedIndex = -1;
 
-            int TransparencyDetection = -1;
+            var TransparencyDetection = -1;
 
             Image<Rgba32> image;
 
@@ -633,23 +633,21 @@ namespace Folder2YTD
 
             image = ResizedImage(image);
 
-            BcEncoder bcEncoder = new();
+            BcEncoder bcEncoder = new()
+            {
+                OutputOptions =
+                {
+                    FileFormat = OutputFileFormat.Dds
+                }
+            };
 
-            bcEncoder.OutputOptions.FileFormat = OutputFileFormat.Dds;
             QualitySettings.Dispatcher.Invoke(() => { QualitySelectedIndex = QualitySettings.SelectedIndex; });
 
             TransparencyTypes.Dispatcher.Invoke(() => { TransparencyDetection = TransparencyTypes.SelectedIndex; });
 
             GenerateMipMaps.Dispatcher.Invoke(() => { isMipMapChecked = (bool)GenerateMipMaps.IsChecked; });
 
-            if (isMipMapChecked)
-            {
-                bcEncoder.OutputOptions.GenerateMipMaps = true;
-            }
-            else
-            {
-                bcEncoder.OutputOptions.GenerateMipMaps = false;
-            }
+            bcEncoder.OutputOptions.GenerateMipMaps = isMipMapChecked;
 
             bcEncoder.OutputOptions.Quality = QualitySelectedIndex switch
             {
@@ -660,22 +658,14 @@ namespace Folder2YTD
             };
             if (TransparencyDetection == 1)
             {
-                if (IsTransparent(image))
-                {
-                    bcEncoder.OutputOptions.Format = CompressionFormat.Bc3;
-                }
-                else
-                {
-                    bcEncoder.OutputOptions.Format = CompressionFormat.Bc1;
-
-                }
+                bcEncoder.OutputOptions.Format = IsTransparent(image) ? CompressionFormat.Bc3 : CompressionFormat.Bc1;
             }
             else
             {
                 bcEncoder.OutputOptions.Format = CompressionFormat.Bc3;
 
             }
-            string GetImageName = Path.GetFileNameWithoutExtension(filename);
+            var GetImageName = Path.GetFileNameWithoutExtension(filename);
             try
             {
                 var SaveDDS = bcEncoder.EncodeToDds(image);
@@ -684,7 +674,7 @@ namespace Folder2YTD
 
                 SaveDDS.Write(ms);
 
-                byte[] ddsbytes = ms.ToArray();
+                var ddsbytes = ms.ToArray();
 
 
                 File.WriteAllBytes(Path.GetDirectoryName(filename) + "/" + GetImageName + ".dds", ddsbytes);
