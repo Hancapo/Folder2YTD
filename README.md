@@ -29,4 +29,4 @@ Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 
 
 ## How to Build:
-Use Visual Studio Community 2022 and .NET 6
+Use Visual Studio Community 2022 and .NET 7
