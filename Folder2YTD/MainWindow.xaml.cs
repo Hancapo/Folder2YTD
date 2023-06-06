@@ -1,4 +1,5 @@
 ﻿using AutoUpdaterDotNET;
+using BCnEncoder.Decoder;
 using BCnEncoder.Encoder;
 using BCnEncoder.ImageSharp;
 using BCnEncoder.Shared;
@@ -50,7 +51,7 @@ namespace Folder2YTD
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             AppVersionLabel.Content = $"v{version}";
             TransparencyTypes.ItemsSource = new List<string>() { "Off", "By pixels" };
-            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)", "DDS Files", "YTD per image" };
+            FormatOutput.ItemsSource = new List<string>() { "GTA V (.YTD)", "DDS Files", "YTD per image", "PNG Files" };
             QualitySettings.ItemsSource = new List<string>() { "Fast", "Balanced", "Best Quality" };
             FormatOutput.SelectedIndex = 0;
             TransparencyTypes.SelectedIndex = 1;
@@ -604,12 +605,66 @@ namespace Folder2YTD
 
             });
         }
+
+        private async Task PNGfromFolder(List<string> allFolders)
+        {
+            await Task.Run(() =>
+            {
+                Parallel.ForEach(allFolders, folder =>
+                {
+                    var imgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly).Where(x =>
+                    x.EndsWith(".dds", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    int? imgCount = imgFiles.Count;
+
+                    LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n\nWorking folder: {Path.GetFileName(folder)}"); });
+
+
+                    if (imgCount <= 0)
+                    {
+
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n0 compatible textures, skipping..."); });
+                    }
+                    else
+                    {
+                        LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ("\n" + imgCount + " compatible textures."); });
+
+                    }
+                    if (imgFiles.Any())
+                    {
+
+                        Parallel.ForEach(imgFiles, imgfile =>
+                        {
+                            var ImgFileName = Path.GetFileName(imgfile);
+
+
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nImage file {ImgFileName} found..."); });
+
+                            LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nConverting {ImgFileName} to PNG..."); });
+
+                            if (ConvertImageToPng(imgfile))
+                            {
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nThe image was successfully converted to PNG..."); });
+                            }
+                            else
+                            {
+                                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\nThe image couldn't be converted to PNG, skipping..."); });
+                            }
+                        });
+                    }
+                });
+
+                MessageBox.Show($"Done, {allFolders.Count} folder(s) processed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            });
+        }
+
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             _foldersList.Clear();
             lbFolderView.ItemsSource = null;
             LbProgressLog.Text = string.Empty;
         }
+
         private bool ConvertImageToDds(string filename)
         {
             var isMipMapChecked = false;
@@ -684,9 +739,39 @@ namespace Folder2YTD
             {
                 return false;
             }
-
-
         }
+
+        private bool ConvertImageToPng(string filename)
+        {
+            Image<Rgba32> image;
+
+            FileStream ddsFile = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            BcDecoder decoder = new BcDecoder();
+
+            try
+            {
+                image = decoder.DecodeToImageRgba32(ddsFile);
+            }
+            catch (Exception e)
+            {
+                LbProgressLog.Dispatcher.Invoke(() => { LbProgressLog.Text += ($"\n{e.Message}"); });
+                return false;
+            }
+
+            image = ResizedImage(image);
+
+            var GetImageName = Path.GetFileNameWithoutExtension(filename);
+            try
+            {
+                image.SaveAsPng(Path.GetDirectoryName(filename) + "/" + GetImageName + ".png");
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+        }
+
         private Image<Rgba32> ResizedImage(Image<Rgba32> image)
         {
             double thresholdA = 0;
@@ -872,6 +957,11 @@ namespace Folder2YTD
                     case 2:
                         ToggleControls(false);
                         await YTDperImage(_foldersList).ConfigureAwait(false);
+                        ToggleControls(true);
+                        break;
+                    case 3:
+                        ToggleControls(false);
+                        await PNGfromFolder(_foldersList).ConfigureAwait(false);
                         ToggleControls(true);
                         break;
                     default:
