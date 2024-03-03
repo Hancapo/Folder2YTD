@@ -27,9 +27,6 @@
                 <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
                 <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
                 <Button  ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
-                <TextBlock FontWeight="SemiBold" VerticalAlignment="Center">
-                    <Hyperlink NavigateUri="https://github.com/Hancapo/VichoTools" x:Name="HlVichoTools" RequestNavigate="HlVichoTools_RequestNavigate">!Now with Vicho's Tools integration, click here to learn more</Hyperlink>
-                </TextBlock>
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">
@@ -40,22 +37,14 @@
 
 
         </StackPanel>
-        <StackPanel Name="spCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-            <ComboBox ToolTip="Changes generated DDS's quality" materialDesign:HintAssist.Hint="Quality" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" x:Name="QualitySettings" Width="95" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            <ComboBox ToolTip="Whether or not to detect transparency to properly compress the new DDS's" materialDesign:HintAssist.Hint="Detect Transparency" Foreground="{DynamicResource MaterialDesignBody}" x:Name="TransparencyTypes" Margin="10" Width="144" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
+        <StackPanel Name="SpCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
             <ComboBox ToolTip="Choose between the available formats output" materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="10" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="FormatOutput_SelectionChanged"/>
-            <StackPanel VerticalAlignment="Center" Margin="10" Name="spThreshold" Width="150">
-                <Label HorizontalAlignment="Center" Content="Power of two threshold" Foreground="{DynamicResource MaterialDesignBody}"/>
-                <Slider ToolTip="Sets the threshold for power of two conversion" Style="{StaticResource MaterialDesignDiscreteSlider}" Name="ThresPower" Minimum="0" Maximum="1000" Value="300" VerticalAlignment="Center" Width="130" TickPlacement="None" />
-
-            </StackPanel>
-            <CheckBox ToolTip="Whether or not generate MipMaps for converted DDS's" x:Name="GenerateMipMaps" Content="Generate MipMaps" Foreground="{DynamicResource MaterialDesignBody}" Height="30" Margin="10,5,20,0"/>
-            <CheckBox ToolTip="Whether or not show the containing folder upon YTD's conversion" x:Name="ShowFilesAfter" Foreground="{DynamicResource MaterialDesignBody}"  Content="Show result upon converting" Margin="10,5,20,0"></CheckBox>
+            <CheckBox ToolTip="Whether or not to show the finished message box" x:Name="ShowFinishMS" Foreground="{DynamicResource MaterialDesignBody}" Content="Show completion dialog" Margin="10,5,20,0"></CheckBox>
+            <CheckBox ToolTip="Whether or not to show the containing folder upon YTD's conversion" x:Name="ShowFilesAfter" Foreground="{DynamicResource MaterialDesignBody}" Content="Show output folder" Margin="10,5,20,0"></CheckBox>
             <Button ToolTip="Process the present folders in the list" x:Name="btnConvert" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="btnConvert_Click"/>
             <Button ToolTip="Clear the folder list" x:Name="btnClear" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignOutlinedButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
-        <StackPanel  Grid.Row="3" VerticalAlignment="Center">
-            <TextBox IsReadOnly="True" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" Name="LbProgressLog" Margin="20" Background="{DynamicResource AttentionToActionBrush}" Height="200" Foreground="LightGreen" TextChanged="LbProgressLog_TextChanged_1" Cursor="Arrow"/>
+        <StackPanel  Grid.Row="3" VerticalAlignment="Bottom" >
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -64,7 +53,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Label Name="AppVersionLabel" Content="null" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
-                <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF, WEBP" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
+                <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
 
 
