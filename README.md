@@ -19,7 +19,7 @@ Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 ## How to install:
 
 - Download it from 5mods https://www.gta5-mods.com/tools/folders2ytd or from Releases.
-- Download and install .NET 6 Runtime x64 https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.7-windows-x64-installer
+- Download and install .NET 7 Runtime x64 [Download here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-7.0.8-windows-x64-installer)
 - Open it and download any update if any is avaible.
 - Enjoy
 
@@ -29,4 +29,4 @@ Create GTA V .YTD files and convert non-DDS files to DDS using folders.
 
 
 ## How to Build:
-Use Visual Studio Community 2022 and .NET 6
+Use Visual Studio Community 2022 and .NET 7
