@@ -94,8 +94,8 @@ public abstract class ImageHelper
             ? resizedImage.GenerateMipMaps(TEX_FILTER_FLAGS.BOX, mipMapLevels)
             : resizedImage;
         ScratchImage compressedImage = IsTransparent(mipmappedImage)
-            ? mipmappedImage.Compress(DXGI_FORMAT.BC3_UNORM, TEX_COMPRESS_FLAGS.DEFAULT, 0)
-            : mipmappedImage.Compress(DXGI_FORMAT.BC1_UNORM, TEX_COMPRESS_FLAGS.DEFAULT, 0.5f);
+            ? mipmappedImage.Compress(DXGI_FORMAT.BC3_UNORM, TEX_COMPRESS_FLAGS.SRGB, 0)
+            : mipmappedImage.Compress(DXGI_FORMAT.BC1_UNORM, TEX_COMPRESS_FLAGS.SRGB, 0.5f);
         compressedImage.SaveToDDSFile(DDS_FLAGS.NONE, $"{Path.GetDirectoryName(filePath)}/{fileName}.dds");
 
         image.Dispose();

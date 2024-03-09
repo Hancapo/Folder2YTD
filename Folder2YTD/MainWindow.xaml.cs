@@ -1,16 +1,10 @@
 ﻿using System.Diagnostics;
-using DirectXTexNet;
-using MaterialDesignThemes;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
 using AutoUpdaterDotNET;
-using CodeWalker.GameFiles;
-using CodeWalker.Utils;
 using MaterialDesignThemes.Wpf;
 using Ookii.Dialogs.Wpf;
 using MessageBox = System.Windows.MessageBox;
