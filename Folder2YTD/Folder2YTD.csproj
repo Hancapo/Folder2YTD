@@ -39,4 +39,15 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="nekobackground.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="assets\neko_meme.png" />
+    <Resource Include="assets\neko_meme.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
 </Project>

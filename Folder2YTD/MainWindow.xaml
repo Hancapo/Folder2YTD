@@ -15,27 +15,28 @@
         mc:Ignorable="d"
         Title="Folders2YTD by MrVicho13" Height="800" Width="1200" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True">
     <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="assets/neko_meme.png" Stretch="UniformToFill" Opacity="0.01" />
+        </Grid.Background>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.2*"/>
+            <RowDefinition Height="0.11*"/>
             <RowDefinition/>
             <RowDefinition Height="0.3*"/>
-            <RowDefinition/>
+            <RowDefinition Height="0.2*"/>
         </Grid.RowDefinitions>
         <StackPanel x:Name="spToolbar" Background="{StaticResource MaterialDesignShadowBrush }" MouseDown="spToolbar_MouseDown">
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button x:Name="btnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click" Cursor="Hand"/>
                 <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
                 <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
-                <Button  ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
+                <Button ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                 <Button ToolTip="Browse and select folders" Margin="20" x:Name="btnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
-                <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="200" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
+                <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="350" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
             </StackPanel>
-
-
         </StackPanel>
         <StackPanel Name="SpCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
             <ComboBox ToolTip="Choose between the available formats output" materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="10" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="FormatOutput_SelectionChanged"/>
@@ -45,7 +46,6 @@
             <Button ToolTip="Clear the folder list" x:Name="btnClear" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignOutlinedButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Bottom" >
-
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -55,11 +55,7 @@
                 <Label Name="AppVersionLabel" Content="null" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
                 <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
-
-
             </Grid>
-
         </StackPanel>
-
     </Grid>
 </Window>
