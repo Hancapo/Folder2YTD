@@ -24,26 +24,27 @@
             <RowDefinition Height="0.3*"/>
             <RowDefinition Height="0.2*"/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="spToolbar" Background="{StaticResource MaterialDesignShadowBrush }" MouseDown="spToolbar_MouseDown">
+        <StackPanel x:Name="SpToolbar" Background="{StaticResource MaterialDesignShadowBrush }" MouseDown="spToolbar_MouseDown">
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
-                <Button x:Name="btnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click" Cursor="Hand"/>
-                <Button x:Name="btnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
-                <Button Margin="5" x:Name="btnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
-                <Button ToolTip="Switch between themes"  Margin="5" x:Name="btnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
+                <Button x:Name="BtnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click" Cursor="Hand"/>
+                <Button x:Name="BtnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
+                <Button Margin="5" x:Name="BtnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
+                <Button ToolTip="Switch between themes"  Margin="5" x:Name="BtnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                <Button ToolTip="Browse and select folders" Margin="20" x:Name="btnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
-                <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="lbFolderView" Height="350" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
+                <Button ToolTip="Browse and select folders" Margin="20" x:Name="BtnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
+                <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="LbFolderView" Height="400" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
             </StackPanel>
         </StackPanel>
-        <StackPanel Name="SpCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-            <ComboBox ToolTip="Choose between the available formats output" materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="10" Width="100" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="FormatOutput_SelectionChanged"/>
-            <CheckBox ToolTip="Whether or not to show the finished message box" x:Name="ShowFinishMS" Foreground="{DynamicResource MaterialDesignBody}" Content="Show completion dialog" Margin="10,5,20,0"></CheckBox>
-            <CheckBox ToolTip="Whether or not to show the containing folder upon YTD's conversion" x:Name="ShowFilesAfter" Foreground="{DynamicResource MaterialDesignBody}" Content="Show output folder" Margin="10,5,20,0"></CheckBox>
-            <Button ToolTip="Process the present folders in the list" x:Name="btnConvert" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignOutlinedSecondaryButton}" Click="btnConvert_Click"/>
-            <Button ToolTip="Clear the folder list" x:Name="btnClear" Margin="20" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignOutlinedButton}" Click="btnClear_Click" Width="81.1666666666667"/>
+        <StackPanel Name="SpCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center" Height="70">
+            <ComboBox Height="43" ToolTip="Choose between the available formats output" materialDesign:HintAssist.Hint="Format Output" Foreground="{DynamicResource MaterialDesignBody}" x:Name="FormatOutput" Margin="10" Width="150" Style="{StaticResource MaterialDesignFilledComboBox}" SelectionChanged="FormatOutput_SelectionChanged"/>
+            <CheckBox Height="25" ToolTip="Whether or not to show the finished message box" x:Name="ShowFinishMs" Foreground="{DynamicResource MaterialDesignBody}" Content="Show completion dialog" Margin="10,5,20,0"></CheckBox>
+            <CheckBox Height="25" ToolTip="Whether or not to show the containing folder upon YTD's conversion" x:Name="ShowFilesAfter" Foreground="{DynamicResource MaterialDesignBody}" Content="Show output folder" Margin="10,5,20,0"></CheckBox>
+            <ComboBox Height="43" ToolTip="Set DDS conversion quality" materialDesign:HintAssist.Hint="DDS Quality" Foreground="{DynamicResource MaterialDesignBody}" x:Name="DdsQuality" Margin="10" Width="150" Style="{StaticResource MaterialDesignFilledComboBox}"/>
+            <Button ToolTip="Process the present folders in the list" x:Name="BtnConvert" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignRaisedButton}" Click="btnConvert_Click"/>
+            <Button ToolTip="Clear the folder list" x:Name="BtnClear" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignRaisedSecondaryDarkButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Bottom" >
             <Grid>

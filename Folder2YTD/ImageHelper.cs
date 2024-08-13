@@ -1,15 +1,17 @@
 ﻿using System.IO;
 using DirectXTexNet;
+using TeximpNet;
+using TeximpNet.Compression;
 
 namespace Folder2YTD;
 
 public abstract class ImageHelper
 {
-    private static readonly List<string> ValidWcExtensions = [ ".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds"];
+    public static readonly List<string> ValidExtensions = [ ".png", ".jpg", ".bmp", ".tiff", ".tif", ".jpeg", ".dds", ".psd", ".gif", ".ico", ".iff", ".webp"];
 
-    private static bool IsTransparent(ScratchImage image)
+    private static bool IsTransparent(Surface image)
     {
-        return !image.IsAlphaAllOpaque();
+        return image.IsTransparent;
     }
 
     private static int CalculateMipMapLevels(int width, int height)
@@ -31,10 +33,10 @@ public abstract class ImageHelper
         return levels;
     }
 
-    private static ScratchImage ResizeImage(ScratchImage image)
+    private static Surface ResizeImage(Surface image)
     {
-        int imageHeight = image.GetMetadata().Height;
-        int imageWidth = image.GetMetadata().Width;
+        int imageHeight = image.Height;
+        int imageWidth = image.Width;
 
         double log2Width = Math.Log2(imageWidth);
         double log2Height = Math.Log2(imageHeight);
@@ -45,34 +47,23 @@ public abstract class ImageHelper
         }
 
         var imageNewSize = PowerOfTwoResize(imageWidth, imageHeight);
-        ScratchImage resizedImage = image.Resize(0, imageNewSize.Item1, imageNewSize.Item2, TEX_FILTER_FLAGS.LINEAR);
-        return resizedImage;
+        image.Resize(imageNewSize.Item1, imageNewSize.Item2, ImageFilter.Lanczos3);
+        return image;
     }
 
-    public static bool ConvertImageToDds(string filePath)
+    public static bool ConvertImageToDds(string filePath, CompressionQuality quality)
     {
-        ScratchImage image;
+        Surface image;
+        Compressor compressor = new Compressor();
 
         string fileExtension = Path.GetExtension(filePath);
         string fileName = Path.GetFileNameWithoutExtension(filePath);
 
-        if (ValidWcExtensions.Contains(fileExtension))
+        if (ValidExtensions.Contains(fileExtension))
         {
             try
             {
-                image = TexHelper.Instance.LoadFromWICFile(filePath, WIC_FLAGS.NONE);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-        else if (fileExtension == ".tga")
-        {
-            try
-            {
-                image = TexHelper.Instance.LoadFromTGAFile(filePath);
+                image = Surface.LoadFromFile(filePath);
             }
             catch (Exception e)
             {
@@ -84,24 +75,26 @@ public abstract class ImageHelper
         {
             return false;
         }
-        ScratchImage resizedImage = ResizeImage(image);
-        
-        int height = resizedImage.GetMetadata().Height;
-        int width = resizedImage.GetMetadata().Width;
+        Surface resizedImage = ResizeImage(image);
+        resizedImage.FlipVertically();
+        int height = resizedImage.Height;
+        int width = resizedImage.Width;
         int mipMapLevels = CalculateMipMapLevels(width, height);
+
+        compressor.Input.SetData(resizedImage);
+        compressor.Input.SetMipmapGeneration(true, mipMapLevels);
+        compressor.Input.MipmapFilter = MipmapFilter.Box;
+        compressor.Output.OutputFileFormat = OutputFileFormat.DDS;
+        compressor.Compression.Quality = quality;
         
-        ScratchImage mipmappedImage = mipMapLevels > 1
-            ? resizedImage.GenerateMipMaps(TEX_FILTER_FLAGS.BOX, mipMapLevels)
-            : resizedImage;
-        ScratchImage compressedImage = IsTransparent(mipmappedImage)
-            ? mipmappedImage.Compress(DXGI_FORMAT.BC3_UNORM, TEX_COMPRESS_FLAGS.SRGB, 0)
-            : mipmappedImage.Compress(DXGI_FORMAT.BC1_UNORM, TEX_COMPRESS_FLAGS.SRGB, 0.5f);
-        compressedImage.SaveToDDSFile(DDS_FLAGS.NONE, $"{Path.GetDirectoryName(filePath)}/{fileName}.dds");
+        compressor.Compression.Format = IsTransparent(resizedImage) ? CompressionFormat.DXT5 : CompressionFormat.DXT1;
+
+        compressor.Process($"{Path.GetDirectoryName(filePath)}/{fileName}.dds");
+
 
         image.Dispose();
         resizedImage.Dispose();
-        mipmappedImage.Dispose();
-        compressedImage.Dispose();
+        compressor.Dispose();
 
         return true;
     }
@@ -110,7 +103,6 @@ public abstract class ImageHelper
     {
         width = (int)Math.Pow(2, Math.Round(Math.Log2(width)));
         height = (int)Math.Pow(2, Math.Round(Math.Log2(height)));
-
         return (width, height);
     }
 }
