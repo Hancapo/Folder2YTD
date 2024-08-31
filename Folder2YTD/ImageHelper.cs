@@ -87,7 +87,7 @@ public abstract class ImageHelper
         compressor.Output.OutputFileFormat = OutputFileFormat.DDS;
         compressor.Compression.Quality = quality;
         
-        compressor.Compression.Format = IsTransparent(resizedImage) ? CompressionFormat.DXT5 : CompressionFormat.DXT1;
+        compressor.Compression.Format = IsTransparent(resizedImage) ? CompressionFormat.DXT5 : CompressionFormat.DXT1a;
 
         compressor.Process($"{Path.GetDirectoryName(filePath)}/{fileName}.dds");
 
