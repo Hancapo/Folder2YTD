@@ -324,10 +324,32 @@ namespace Folder2YTD
 
         private void lbFolderView_Drop(object sender, System.Windows.DragEventArgs e)
         {
-            List<string> folderpaths = ((string[])e.Data.GetData(System.Windows.DataFormats.FileDrop, true)).ToList();
-            List<string> validFolders = folderpaths.Where(Directory.Exists).ToList();
+            List<string> validExts = ImageHelper.ValidExtensions;
+            List<string> filesAndFolders = (((string[])e.Data.GetData(System.Windows.DataFormats.FileDrop, true))!).ToList();
+            List<string> validFolders = filesAndFolders.Where(Directory.Exists).ToList();
+            List<string> validImages = filesAndFolders.Where(x => validExts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToList();
             _foldersList = _foldersList.Concat(validFolders.ToList()).Distinct().ToList();
             LbFolderView.ItemsSource = _foldersList;
+
+            if (validImages.Count != 0)
+            {
+                var result = MessageBox.Show($"{validImages.Count} image(s) detected, want to convert them to .DDS?", "Information",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information);
+                if(result == MessageBoxResult.Yes)
+                {
+                    validImages.ForEach(x =>
+                    {
+                        ImageHelper.ConvertImageToDds(x, CompressionQuality.Production);
+                    });
+                    
+                    var result2 = MessageBox.Show("Images converted, want to delete the originals?", "Information",
+                        MessageBoxButton.YesNo, MessageBoxImage.Information);
+                    if (result2 == MessageBoxResult.Yes)
+                    {
+                        validImages.ForEach(File.Delete);
+                    }
+                }
+            }
         }
 
         private void btnMinimize_Click_1(object sender, RoutedEventArgs e)
@@ -342,17 +364,17 @@ namespace Folder2YTD
 
         private void ToggleControls(bool state)
         {
-            //Parte de arriba
+            //Upper part
             BtnClose.Dispatcher.Invoke(() => { BtnClose.IsEnabled = state; });
             BtnMinimize.Dispatcher.Invoke(() => { BtnMinimize.IsEnabled = state; });
             BtnToggleDarkMode.Dispatcher.Invoke(() => { BtnToggleDarkMode.IsEnabled = state; });
             BtnHelpabout.Dispatcher.Invoke(() => { BtnHelpabout.IsEnabled = state; });
 
-            //Parte 1
+            //Part 1
             BtnSelectFolders.Dispatcher.Invoke(() => { BtnSelectFolders.IsEnabled = state; });
             LbFolderView.Dispatcher.Invoke(() => { LbFolderView.IsHitTestVisible = state; });
 
-            //Parte del medio
+            //Middle part
             SpCenter.Dispatcher.Invoke(() => { SpCenter.IsEnabled = state; });
         }
 
