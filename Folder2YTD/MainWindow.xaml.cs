@@ -281,13 +281,10 @@ namespace Folder2YTD
         private void btnHelpabout_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "This program was created to convert one or more folders with textures in its interior to a fully working .YTD" +
-                "\n\n● Quality settings are intended for its use in non-DDS files to convert them to .DDS with the selected quality." +
-                "\n\n● Transparency detection works to determinate transparency for non-DDS files, in order to create a .DDS with proper compression, particularly useful when you are trying to bring textures to memory constrained enviroments such as FiveM servers." +
+                "This program was created to convert one or more folders that contains images to a fully working .YTD" +
+                "\n\n● Quality settings are intended for its use in non-DDS files during conversion." +
                 "\n\n● During conversion your textures will be resized to be power of two, this doesn't mean that your texture will become seamless, if your texture wasn't like that before the resizing, it won't make any difference." +
-                "\n\n● The threshold slider works if you need to manually adjust the threshold (a hidden value which determinates how the resized image will stretch out), if your resulting texture(s) are oddly stretched, you should change this value and try again but beware, this value applies to every texture." +
-                "\n\n● The format option lets you to choose between just converting the images directly to .DDS or, conversely, create YTD(s) out of the folders you have selected." +
-                "\n\n● Generate MipMaps? is responsible for generating mipmaps for your textures, this option should be left as checked.",
+                "\n\n● The format option lets you to choose between just converting the images directly to .DDS or, conversely, create YTD(s) out of the folders you have selected.",
                 "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -352,7 +349,7 @@ namespace Folder2YTD
             }
         }
 
-        private void btnMinimize_Click_1(object sender, RoutedEventArgs e)
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
         }

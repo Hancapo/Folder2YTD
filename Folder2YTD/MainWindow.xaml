@@ -27,7 +27,7 @@
         <StackPanel x:Name="SpToolbar" Background="{StaticResource MaterialDesignShadowBrush }" MouseDown="spToolbar_MouseDown">
             <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
                 <Button x:Name="BtnClose" Margin="5" Content="{materialDesign:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignIconButton}" Click="btnClose_Click" Cursor="Hand"/>
-                <Button x:Name="BtnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click_1"/>
+                <Button x:Name="BtnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click"/>
                 <Button Margin="5" x:Name="BtnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
                 <Button ToolTip="Switch between themes"  Margin="5" x:Name="BtnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
             </StackPanel>
