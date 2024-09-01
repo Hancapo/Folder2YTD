@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using AutoUpdaterDotNET;
 using MaterialDesignThemes.Wpf;
 using Ookii.Dialogs.Wpf;
@@ -271,6 +272,7 @@ namespace Folder2YTD
         {
             _foldersList.Clear();
             LbFolderView.ItemsSource = null;
+            ListBg.ImageSource = new BitmapImage(new Uri("pack://application:,,,/assets/1410633-200.png"));
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -327,6 +329,8 @@ namespace Folder2YTD
             List<string> validImages = filesAndFolders.Where(x => validExts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToList();
             _foldersList = _foldersList.Concat(validFolders.ToList()).Distinct().ToList();
             LbFolderView.ItemsSource = _foldersList;
+
+            ListBg.ImageSource = null;
 
             if (validImages.Count != 0)
             {
@@ -421,6 +425,11 @@ namespace Folder2YTD
                         break;
                 }
             }
+        }
+
+        private void BtnVichoTools_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe","https://github.com/Hancapo/VichoTools");
         }
     }
 }

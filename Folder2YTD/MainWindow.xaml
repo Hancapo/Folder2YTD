@@ -30,12 +30,21 @@
                 <Button x:Name="BtnMinimize" Margin="5" Content="{materialDesign:PackIcon Kind=WindowMinimize}" Style="{StaticResource MaterialDesignIconButton}" Click="btnMinimize_Click"/>
                 <Button Margin="5" x:Name="BtnHelpabout" Content="{materialDesign:PackIcon Kind=HelpCircle}" Style="{StaticResource MaterialDesignIconButton}" Click="btnHelpabout_Click"/>
                 <Button ToolTip="Switch between themes"  Margin="5" x:Name="BtnToggleDarkMode" Content="{materialDesign:PackIcon Kind=ThemeLightDark}" Style="{StaticResource MaterialDesignIconButton}" Click="btnToggleDarkMode_Click"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BtnVichoTools" Click="BtnVichoTools_OnClick" Style="{StaticResource MaterialDesignFlatButton}" Content="Vicho's Tools"></Button>
+                    <Label VerticalContentAlignment="Center" Foreground="Cyan" Content="Are you using Blender/Sollumz to create assets for GTA? Create your YTDs easily using"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                 <Button ToolTip="Browse and select folders" Margin="20" x:Name="BtnSelectFolders" Style="{DynamicResource MaterialDesignIconButton}" Content="{materialDesign:PackIcon Kind=FolderSearch}" Click="btnSelectFolders_Click"/>
-                <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="LbFolderView" Height="400" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ListBox Width="1160" Background="{StaticResource AttentionToActionBrush}" x:Name="LbFolderView" Height="400" Style="{StaticResource MaterialDesignListBox}" d:ItemsSource="{d:SampleData ItemCount=50}" SelectionMode="Single" SelectionChanged="lbFolderView_SelectionChanged" AllowDrop="True" Drop="lbFolderView_Drop"/>
+                    <StackPanel.Background>
+                        <ImageBrush x:Name="ListBg" Stretch="None" Opacity="0.3" ImageSource="assets/1410633-200.png"/>
+                    </StackPanel.Background>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
         <StackPanel Name="SpCenter" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center" Height="70">
@@ -54,7 +63,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Label Name="AppVersionLabel" Content="null" Grid.Column="0" FlowDirection="LeftToRight" Margin="15"/>
-                <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
+                <Label Content="Supported formats: PNG, DDS, TGA, JPG/JPEG, BMP, TIFF/TIF, PSD, GIF, WEBP" HorizontalContentAlignment="Center" Margin="15" Grid.Column="1"/>
                 <Label Content="Folders2YTD by MrVicho13" Grid.Column="2" FlowDirection="RightToLeft" Margin="15"/>
             </Grid>
         </StackPanel>
