@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using DirectXTexNet;
 using TeximpNet;
 using TeximpNet.Compression;
 
