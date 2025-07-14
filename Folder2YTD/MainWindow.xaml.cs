@@ -44,6 +44,12 @@ namespace Folder2YTD
 
         private async Task YtdPerImage(IReadOnlyList<string> allFolders)
         {
+            if (allFolders.Count == 0)
+            {
+                UpdateProgress(0, 0, "No folders to process");
+                return;
+            }
+
             await Task.Run(() =>
             {
                 _parentFolders = allFolders.Select(x => Directory.GetParent(x)!.ToString()).Distinct().ToList();
@@ -126,6 +132,9 @@ namespace Folder2YTD
                     }
                 });
 
+                // Show completion
+                UpdateProgress(totalFolders, totalFolders, "Conversion complete");
+
                 ShowFinishMs.Dispatcher.Invoke(() =>
                 {
                     if (ShowFinishMs.IsChecked == true)
@@ -149,6 +158,12 @@ namespace Folder2YTD
 
         private async Task YtdFromFolders(IReadOnlyList<string> allFolders)
         {
+            if (allFolders.Count == 0)
+            {
+                UpdateProgress(0, 0, "No folders to process");
+                return;
+            }
+
             await Task.Run(() =>
             {
                 _parentFolders = allFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
@@ -236,6 +251,9 @@ namespace Folder2YTD
                     }
                 });
 
+                // Show completion
+                UpdateProgress(totalFolders, totalFolders, "Conversion complete");
+
                 ShowFinishMs.Dispatcher.Invoke(() =>
                 {
                     if (ShowFinishMs.IsChecked == true)
@@ -261,6 +279,12 @@ namespace Folder2YTD
 
         private async Task DdsFromFolder(IReadOnlyCollection<string> allFolders)
         {
+            if (allFolders.Count == 0)
+            {
+                UpdateProgress(0, 0, "No folders to process");
+                return;
+            }
+
             await Task.Run(() =>
             {
                 int totalFolders = allFolders.Count;
@@ -291,6 +315,9 @@ namespace Folder2YTD
                         UpdateProgress(processedFolders, totalFolders, "Converting images to DDS");
                     }
                 });
+
+                // Show completion
+                UpdateProgress(totalFolders, totalFolders, "Conversion complete");
 
                 ShowFinishMs.Dispatcher.Invoke(() =>
                 {
