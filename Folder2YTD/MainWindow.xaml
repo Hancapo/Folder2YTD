@@ -55,6 +55,10 @@
             <Button ToolTip="Process the present folders in the list" x:Name="BtnConvert" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" Content="Convert" Style="{DynamicResource MaterialDesignRaisedButton}" Click="btnConvert_Click"/>
             <Button ToolTip="Clear the folder list" x:Name="BtnClear" Margin="10" Foreground="{DynamicResource MaterialDesignBody}" Content="Clear" Style="{DynamicResource MaterialDesignRaisedSecondaryDarkButton}" Click="btnClear_Click" Width="81.1666666666667"/>
         </StackPanel>
+        <StackPanel Name="SpProgress" Orientation="Vertical" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10" Visibility="Collapsed">
+            <TextBlock Name="ProgressText" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="{DynamicResource MaterialDesignBody}" FontWeight="Medium"/>
+            <ProgressBar Name="ConversionProgress" Width="400" Height="6" Style="{StaticResource MaterialDesignLinearProgressBar}" Minimum="0" Maximum="100"/>
+        </StackPanel>
         <StackPanel  Grid.Row="3" VerticalAlignment="Bottom" >
             <Grid>
                 <Grid.ColumnDefinitions>

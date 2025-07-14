@@ -21,6 +21,7 @@ namespace Folder2YTD
         private List<string> _foldersList = [];
         private readonly PaletteHelper _paletteHelper = new();
         private List<string> _parentFolders = [];
+        private CancellationTokenSource _cancellationTokenSource = new();
 
         public MainWindow()
         {
@@ -46,6 +47,10 @@ namespace Folder2YTD
             await Task.Run(() =>
             {
                 _parentFolders = allFolders.Select(x => Directory.GetParent(x)!.ToString()).Distinct().ToList();
+                int totalFolders = allFolders.Count;
+                int processedFolders = 0;
+
+                object lockObj = new object();
 
                 Parallel.For(0, allFolders.Count, i =>
                 {
@@ -112,6 +117,13 @@ namespace Folder2YTD
                     {
                         Directory.Delete(folder + "/converted_dds", true);
                     }
+
+                    // Update progress
+                    lock (lockObj)
+                    {
+                        processedFolders++;
+                        UpdateProgress(processedFolders, totalFolders, "Processing folders");
+                    }
                 });
 
                 ShowFinishMs.Dispatcher.Invoke(() =>
@@ -140,6 +152,10 @@ namespace Folder2YTD
             await Task.Run(() =>
             {
                 _parentFolders = allFolders.Select(x => Directory.GetParent(x).ToString()).Distinct().ToList();
+                int totalFolders = allFolders.Count;
+                int processedFolders = 0;
+
+                object lockObj = new object();
 
                 Parallel.For(0, allFolders.Count, i =>
                 {
@@ -211,6 +227,13 @@ namespace Folder2YTD
                     {
                         Directory.Delete(folder + "/converted_dds", true);
                     }
+
+                    // Update progress
+                    lock (lockObj)
+                    {
+                        processedFolders++;
+                        UpdateProgress(processedFolders, totalFolders, "Processing folders");
+                    }
                 });
 
                 ShowFinishMs.Dispatcher.Invoke(() =>
@@ -240,6 +263,11 @@ namespace Folder2YTD
         {
             await Task.Run(() =>
             {
+                int totalFolders = allFolders.Count;
+                int processedFolders = 0;
+
+                object lockObj = new object();
+
                 Parallel.ForEach(allFolders, folder =>
                 {
                     var imgFiles = Directory.EnumerateFiles(folder, "*.*", SearchOption.TopDirectoryOnly)
@@ -254,6 +282,13 @@ namespace Folder2YTD
                                 ImageHelper.ConvertImageToDds(imgfile, (CompressionQuality)DdsQuality.SelectedItem);
                             });
                         });
+                    }
+
+                    // Update progress
+                    lock (lockObj)
+                    {
+                        processedFolders++;
+                        UpdateProgress(processedFolders, totalFolders, "Converting images to DDS");
                     }
                 });
 
@@ -377,6 +412,28 @@ namespace Folder2YTD
 
             //Middle part
             SpCenter.Dispatcher.Invoke(() => { SpCenter.IsEnabled = state; });
+            
+            //Progress bar
+            SpProgress.Dispatcher.Invoke(() => { SpProgress.Visibility = state ? Visibility.Collapsed : Visibility.Visible; });
+        }
+
+        private void UpdateProgress(int current, int total, string status)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var percentage = total > 0 ? (double)current / total * 100 : 0;
+                ConversionProgress.Value = percentage;
+                ProgressText.Text = $"{status} ({current}/{total})";
+            });
+        }
+
+        private void ResetProgress()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ConversionProgress.Value = 0;
+                ProgressText.Text = "";
+            });
         }
 
 
@@ -404,6 +461,7 @@ namespace Folder2YTD
             }
             else
             {
+                ResetProgress();
                 switch (FormatOutput.SelectedIndex)
                 {
                     case 0:
